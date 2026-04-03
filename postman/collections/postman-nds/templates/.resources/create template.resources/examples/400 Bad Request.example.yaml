@@ -1,0 +1,29 @@
+$kind: http-example
+name: '400 Bad Request — missing required fields'
+order: 2000
+request:
+  url: '{{baseUrl}}/templates'
+  method: POST
+  headers:
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "key": "incomplete-template"
+      }
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    - key: Content-Type
+      value: 'application/json; charset=utf-8'
+  body:
+    type: json
+    content: |-
+      {
+        "statusCode": 400,
+        "error": "Bad Request",
+        "message": "body must have required property 'name'"
+      }

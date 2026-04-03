@@ -1,0 +1,20 @@
+$kind: collection
+name: postman-nds
+description: |-
+  Notification Dispatch System (NDS) — a Fastify REST API that accepts
+  notification requests, queues them durably, and delivers them reliably
+  across EMAIL, SMS, and IN_APP channels.
+
+  Base URL is controlled by the `baseUrl` collection variable (default:
+  http://localhost:3000). Override it via the bundled environment.
+
+  Channels: EMAIL | SMS | IN_APP
+  Priorities: LOW | MEDIUM | HIGH
+  Statuses: SCHEDULED | PENDING | PROCESSING | DELIVERED | FAILED
+variables:
+  - key: baseUrl
+    value: 'http://localhost:3000'
+    description: 'Root URL of the running NDS server. Override with the postman-nds environment.'
+  - key: templateId
+    value: ''
+    description: 'Populated automatically by the Create Template request test script.'

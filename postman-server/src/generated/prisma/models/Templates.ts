@@ -256,7 +256,7 @@ export type TemplatesWhereInput = {
   isActive?: Prisma.BoolFilter<"Templates"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Templates"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Templates"> | Date | string
-  Notifications?: Prisma.NotificationsListRelationFilter
+  notifications?: Prisma.NotificationsListRelationFilter
 }
 
 export type TemplatesOrderByWithRelationInput = {
@@ -270,7 +270,7 @@ export type TemplatesOrderByWithRelationInput = {
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  Notifications?: Prisma.NotificationsOrderByRelationAggregateInput
+  notifications?: Prisma.NotificationsOrderByRelationAggregateInput
 }
 
 export type TemplatesWhereUniqueInput = Prisma.AtLeast<{
@@ -288,7 +288,7 @@ export type TemplatesWhereUniqueInput = Prisma.AtLeast<{
   isActive?: Prisma.BoolFilter<"Templates"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Templates"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Templates"> | Date | string
-  Notifications?: Prisma.NotificationsListRelationFilter
+  notifications?: Prisma.NotificationsListRelationFilter
 }, "id" | "key_version">
 
 export type TemplatesOrderByWithAggregationInput = {
@@ -326,7 +326,7 @@ export type TemplatesScalarWhereWithAggregatesInput = {
 }
 
 export type TemplatesCreateInput = {
-  id: string
+  id?: string
   key: string
   name: string
   version?: number
@@ -335,12 +335,12 @@ export type TemplatesCreateInput = {
   bodyTemplate: string
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt: Date | string
-  Notifications?: Prisma.NotificationsCreateNestedManyWithoutTemplatesInput
+  updatedAt?: Date | string
+  notifications?: Prisma.NotificationsCreateNestedManyWithoutTemplateInput
 }
 
 export type TemplatesUncheckedCreateInput = {
-  id: string
+  id?: string
   key: string
   name: string
   version?: number
@@ -349,8 +349,8 @@ export type TemplatesUncheckedCreateInput = {
   bodyTemplate: string
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt: Date | string
-  Notifications?: Prisma.NotificationsUncheckedCreateNestedManyWithoutTemplatesInput
+  updatedAt?: Date | string
+  notifications?: Prisma.NotificationsUncheckedCreateNestedManyWithoutTemplateInput
 }
 
 export type TemplatesUpdateInput = {
@@ -364,7 +364,7 @@ export type TemplatesUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Notifications?: Prisma.NotificationsUpdateManyWithoutTemplatesNestedInput
+  notifications?: Prisma.NotificationsUpdateManyWithoutTemplateNestedInput
 }
 
 export type TemplatesUncheckedUpdateInput = {
@@ -378,11 +378,11 @@ export type TemplatesUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Notifications?: Prisma.NotificationsUncheckedUpdateManyWithoutTemplatesNestedInput
+  notifications?: Prisma.NotificationsUncheckedUpdateManyWithoutTemplateNestedInput
 }
 
 export type TemplatesCreateManyInput = {
-  id: string
+  id?: string
   key: string
   name: string
   version?: number
@@ -391,7 +391,7 @@ export type TemplatesCreateManyInput = {
   bodyTemplate: string
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt: Date | string
+  updatedAt?: Date | string
 }
 
 export type TemplatesUpdateManyMutationInput = {
@@ -494,7 +494,7 @@ export type TemplatesUpdateOneWithoutNotificationsNestedInput = {
 }
 
 export type TemplatesCreateWithoutNotificationsInput = {
-  id: string
+  id?: string
   key: string
   name: string
   version?: number
@@ -503,11 +503,11 @@ export type TemplatesCreateWithoutNotificationsInput = {
   bodyTemplate: string
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt: Date | string
+  updatedAt?: Date | string
 }
 
 export type TemplatesUncheckedCreateWithoutNotificationsInput = {
-  id: string
+  id?: string
   key: string
   name: string
   version?: number
@@ -516,7 +516,7 @@ export type TemplatesUncheckedCreateWithoutNotificationsInput = {
   bodyTemplate: string
   isActive?: boolean
   createdAt?: Date | string
-  updatedAt: Date | string
+  updatedAt?: Date | string
 }
 
 export type TemplatesCreateOrConnectWithoutNotificationsInput = {
@@ -567,11 +567,11 @@ export type TemplatesUncheckedUpdateWithoutNotificationsInput = {
  */
 
 export type TemplatesCountOutputType = {
-  Notifications: number
+  notifications: number
 }
 
 export type TemplatesCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Notifications?: boolean | TemplatesCountOutputTypeCountNotificationsArgs
+  notifications?: boolean | TemplatesCountOutputTypeCountNotificationsArgs
 }
 
 /**
@@ -603,7 +603,7 @@ export type TemplatesSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  Notifications?: boolean | Prisma.Templates$NotificationsArgs<ExtArgs>
+  notifications?: boolean | Prisma.Templates$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.TemplatesCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["templates"]>
 
@@ -648,7 +648,7 @@ export type TemplatesSelectScalar = {
 
 export type TemplatesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "name" | "version" | "channel" | "subjectTemplate" | "bodyTemplate" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["templates"]>
 export type TemplatesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Notifications?: boolean | Prisma.Templates$NotificationsArgs<ExtArgs>
+  notifications?: boolean | Prisma.Templates$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.TemplatesCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TemplatesIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -657,7 +657,7 @@ export type TemplatesIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
 export type $TemplatesPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Templates"
   objects: {
-    Notifications: Prisma.$NotificationsPayload<ExtArgs>[]
+    notifications: Prisma.$NotificationsPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1064,7 +1064,7 @@ readonly fields: TemplatesFieldRefs;
  */
 export interface Prisma__TemplatesClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Notifications<T extends Prisma.Templates$NotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Templates$NotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  notifications<T extends Prisma.Templates$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Templates$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1497,9 +1497,9 @@ export type TemplatesDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 /**
- * Templates.Notifications
+ * Templates.notifications
  */
-export type Templates$NotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Templates$notificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Notifications
    */

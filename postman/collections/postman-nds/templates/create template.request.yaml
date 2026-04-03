@@ -1,0 +1,48 @@
+$kind: http-request
+name: Create Template
+method: POST
+url: '{{baseUrl}}/templates'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "key": "welcome-email-v1",
+      "name": "Welcome Email",
+      "channel": "EMAIL",
+      "version": 1,
+      "subjectTemplate": "Welcome to our platform, {{name}}!",
+      "bodyTemplate": "Hi {{name}},\n\nThank you for signing up. Your account is ready.\n\nBest regards,\nThe Team",
+      "isActive": true
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () {
+        pm.response.to.have.status(201);
+      });
+
+      pm.test("Content-Type is JSON", function () {
+        pm.expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+      });
+
+      pm.test("Response has id and status", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property("id");
+        pm.expect(json).to.have.property("status", "CREATED");
+        pm.expect(json.id).to.be.a("string").and.not.empty;
+      });
+
+      // Persist the created template ID for downstream requests
+      if (pm.response.code === 201) {
+        const json = pm.response.json();
+        pm.collectionVariables.set("templateId", json.id);
+        console.log("Saved templateId:", json.id);
+      }
+examples: './.resources/create template.resources/examples'

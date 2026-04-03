@@ -1,0 +1,34 @@
+$kind: http-example
+name: '201 Created'
+order: 1000
+request:
+  url: '{{baseUrl}}/templates'
+  method: POST
+  headers:
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "key": "welcome-email-v1",
+        "name": "Welcome Email",
+        "channel": "EMAIL",
+        "version": 1,
+        "subjectTemplate": "Welcome to our platform, {{name}}!",
+        "bodyTemplate": "Hi {{name}},\n\nThank you for signing up.\n\nBest regards,\nThe Team",
+        "isActive": true
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    - key: Content-Type
+      value: 'application/json; charset=utf-8'
+  body:
+    type: json
+    content: |-
+      {
+        "id": "a1b2c3d4-e5f6-4789-abcd-ef0123456789",
+        "status": "CREATED"
+      }

@@ -9,137 +9,18 @@ datasource db {
   provider = "postgresql"
 }
 
-model ApiKeys {
-  id         String    @id
-  name       String
-  keyHash    String    @unique
-  lastUsedAt DateTime?
-  revokedAt  DateTime?
-  createdAt  DateTime  @default(now())
-}
-
-model AttemptLog {
-  id                String                @id
-  notificationId    String
-  attemptNumber     Int
-  attemptedAt       DateTime              @default(now())
-  workerId          String
-  provider          NotificationProvider?
-  success           Boolean
-  providerMessageId String?
-  errorCode         String?
-  errorMessage      String?
-  durationMs        Int?
-  Notifications     Notifications         @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-
-  @@index([notificationId, attemptNumber])
-  @@index([notificationId])
-  @@index([workerId])
-}
-
-model DeadLetterQueue {
-  id               String        @id
-  notificationId   String        @unique
-  failureReason    String
-  attemptCount     Int
-  finalAttemptTime DateTime
-  errorMessage     String?
-  errorCode        String?
-  requeuedBy       String?
-  requeuedAt       DateTime?
-  createdAt        DateTime      @default(now())
-  Notifications    Notifications @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-
-  @@index([createdAt])
-  @@index([notificationId])
-}
-
-model InAppNotifications {
-  id             String        @id
-  notificationId String        @unique
-  recipientId    String
-  subject        String?
-  body           String?
-  read           Boolean       @default(false)
-  readAt         DateTime?
-  createdAt      DateTime      @default(now())
-  Notifications  Notifications @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-
-  @@index([recipientId, createdAt])
-  @@index([recipientId, read, createdAt])
-}
-
-model NotificationQueue {
-  id                String               @id
-  notificationId    String               @unique
-  priority          NotificationPriority @default(MEDIUM)
-  workerId          String?
-  visibilityTimeout DateTime?
-  createdAt         DateTime             @default(now())
-  Notifications     Notifications        @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-
-  @@index([priority(sort: Desc), createdAt], map: "NotificationQueue_poll_idx", where: raw("(\"visibilityTimeout\" IS NULL)"))
-}
-
-model Notifications {
-  id                 String               @id
-  templateId         String?
-  recipientId        String
-  channel            NotificationChannel
-  priority           NotificationPriority @default(MEDIUM)
-  status             NotificationStatus   @default(PENDING)
-  subject            String?
-  body               String?
-  metadata           Json?
-  idempotencyKey     String               @unique
-  attemptCount       Int                  @default(0)
-  maxAttempts        Int                  @default(5)
-  scheduledAt        DateTime?
-  enqueuedAt         DateTime?
-  deliveredAt        DateTime?
-  providerMessageId  String?
-  failureReason      String?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime
-  AttemptLog         AttemptLog[]
-  DeadLetterQueue    DeadLetterQueue?
-  InAppNotifications InAppNotifications?
-  NotificationQueue  NotificationQueue?
-  Templates          Templates?           @relation(fields: [templateId], references: [id])
-
-  @@index([recipientId])
-  @@index([status])
-  @@index([status, priority, createdAt])
-  @@index([status, scheduledAt])
-}
-
-model Templates {
-  id              String              @id
-  key             String
-  name            String
-  version         Int                 @default(1)
-  channel         NotificationChannel
-  subjectTemplate String?
-  bodyTemplate    String
-  isActive        Boolean             @default(true)
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime
-  Notifications   Notifications[]
-
-  @@unique([key, version])
-  @@index([key, isActive])
-}
-
-enum NotificationChannel {
-  EMAIL
-  SMS
-  IN_APP
-}
-
 enum NotificationPriority {
   LOW
   MEDIUM
   HIGH
+}
+
+enum NotificationStatus {
+  SCHEDULED
+  PENDING
+  PROCESSING
+  DELIVERED
+  FAILED
 }
 
 enum NotificationProvider {
@@ -149,10 +30,154 @@ enum NotificationProvider {
   IN_APP
 }
 
-enum NotificationStatus {
-  SCHEDULED
-  PENDING
-  PROCESSING
-  DELIVERED
-  FAILED
+enum NotificationChannel {
+  EMAIL
+  SMS
+  IN_APP
+}
+
+model Notifications {
+  id String @id @default(uuid())
+
+  templateId        String?
+  recipientId       String
+  channel           NotificationChannel
+  priority          NotificationPriority @default(MEDIUM)
+  status            NotificationStatus   @default(PENDING)
+  subject           String?
+  body              String?
+  metadata          Json?
+  idempotencyKey    String               @unique
+  attemptCount      Int                  @default(0)
+  maxAttempts       Int                  @default(5)
+  scheduledAt       DateTime?
+  enqueuedAt        DateTime?
+  deliveredAt       DateTime?
+  providerMessageId String?
+  failureReason     String?
+
+  template          Templates?          @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  deadLetterEntries DeadLetterQueue[]
+  attemptLogs       AttemptLog[]
+  inApp             InAppNotifications?
+  queueEntry        NotificationQueue?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([recipientId])
+  @@index([status])
+  @@index([status, priority, createdAt])
+  @@index([status, scheduledAt])
+}
+
+model NotificationQueue {
+  id String @id @default(uuid())
+
+  notificationId    String               @unique
+  priority          NotificationPriority @default(MEDIUM)
+  workerId          String?
+  visibilityTimeout DateTime?
+  createdAt         DateTime             @default(now())
+
+  notification Notifications @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  
+  // Poll index — override in migration with:
+  // CREATE INDEX ON "NotificationQueue" (priority DESC, "createdAt" ASC)
+  // WHERE "visibilityTimeout" IS NULL OR "visibilityTimeout" < now();
+  @@index([priority, createdAt])
+}
+
+model AttemptLog {
+  id String @id @default(uuid())
+
+  notificationId String
+  attemptNumber  Int
+  attemptedAt    DateTime @default(now())
+
+  workerId String
+  provider NotificationProvider?
+  success  Boolean
+
+  providerMessageId String?
+  errorCode         String?
+  errorMessage      String?
+  durationMs        Int?
+
+  notification Notifications @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([notificationId, attemptNumber])
+  @@index([notificationId])
+  @@index([workerId])
+}
+
+model DeadLetterQueue {
+  id String @id @default(uuid())
+
+  notificationId   String   @unique
+  failureReason    String
+  attemptCount     Int
+  finalAttemptTime DateTime
+
+  errorMessage String?
+  errorCode    String?
+
+  requeuedBy String?
+  requeuedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  notification Notifications @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([notificationId])
+  @@index([createdAt])
+}
+
+model InAppNotifications {
+  id String @id @default(uuid())
+
+  notificationId String @unique
+  recipientId    String
+
+  subject String?
+  body    String?
+
+  read   Boolean   @default(false)
+  readAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  notification Notifications @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId, createdAt])
+  @@index([recipientId, read, createdAt])
+}
+
+model Templates {
+  id      String @id @default(uuid())
+  key     String 
+  name    String 
+  version Int    @default(1)
+
+  channel         NotificationChannel
+  subjectTemplate String?
+  bodyTemplate    String
+  isActive        Boolean             @default(true)
+
+  notifications Notifications[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, version]) 
+  @@index([key, isActive]) 
+}
+
+model ApiKeys {
+  id         String    @id @default(uuid())
+  name       String
+  keyHash    String    @unique
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
 }

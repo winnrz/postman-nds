@@ -256,7 +256,7 @@ export type DeadLetterQueueWhereInput = {
   requeuedBy?: Prisma.StringNullableFilter<"DeadLetterQueue"> | string | null
   requeuedAt?: Prisma.DateTimeNullableFilter<"DeadLetterQueue"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DeadLetterQueue"> | Date | string
-  Notifications?: Prisma.XOR<Prisma.NotificationsScalarRelationFilter, Prisma.NotificationsWhereInput>
+  notification?: Prisma.XOR<Prisma.NotificationsScalarRelationFilter, Prisma.NotificationsWhereInput>
 }
 
 export type DeadLetterQueueOrderByWithRelationInput = {
@@ -270,7 +270,7 @@ export type DeadLetterQueueOrderByWithRelationInput = {
   requeuedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   requeuedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  Notifications?: Prisma.NotificationsOrderByWithRelationInput
+  notification?: Prisma.NotificationsOrderByWithRelationInput
 }
 
 export type DeadLetterQueueWhereUniqueInput = Prisma.AtLeast<{
@@ -287,7 +287,7 @@ export type DeadLetterQueueWhereUniqueInput = Prisma.AtLeast<{
   requeuedBy?: Prisma.StringNullableFilter<"DeadLetterQueue"> | string | null
   requeuedAt?: Prisma.DateTimeNullableFilter<"DeadLetterQueue"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"DeadLetterQueue"> | Date | string
-  Notifications?: Prisma.XOR<Prisma.NotificationsScalarRelationFilter, Prisma.NotificationsWhereInput>
+  notification?: Prisma.XOR<Prisma.NotificationsScalarRelationFilter, Prisma.NotificationsWhereInput>
 }, "id" | "notificationId">
 
 export type DeadLetterQueueOrderByWithAggregationInput = {
@@ -325,7 +325,7 @@ export type DeadLetterQueueScalarWhereWithAggregatesInput = {
 }
 
 export type DeadLetterQueueCreateInput = {
-  id: string
+  id?: string
   failureReason: string
   attemptCount: number
   finalAttemptTime: Date | string
@@ -334,11 +334,11 @@ export type DeadLetterQueueCreateInput = {
   requeuedBy?: string | null
   requeuedAt?: Date | string | null
   createdAt?: Date | string
-  Notifications: Prisma.NotificationsCreateNestedOneWithoutDeadLetterQueueInput
+  notification: Prisma.NotificationsCreateNestedOneWithoutDeadLetterEntriesInput
 }
 
 export type DeadLetterQueueUncheckedCreateInput = {
-  id: string
+  id?: string
   notificationId: string
   failureReason: string
   attemptCount: number
@@ -360,7 +360,7 @@ export type DeadLetterQueueUpdateInput = {
   requeuedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requeuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Notifications?: Prisma.NotificationsUpdateOneRequiredWithoutDeadLetterQueueNestedInput
+  notification?: Prisma.NotificationsUpdateOneRequiredWithoutDeadLetterEntriesNestedInput
 }
 
 export type DeadLetterQueueUncheckedUpdateInput = {
@@ -377,7 +377,7 @@ export type DeadLetterQueueUncheckedUpdateInput = {
 }
 
 export type DeadLetterQueueCreateManyInput = {
-  id: string
+  id?: string
   notificationId: string
   failureReason: string
   attemptCount: number
@@ -412,6 +412,16 @@ export type DeadLetterQueueUncheckedUpdateManyInput = {
   requeuedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   requeuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type DeadLetterQueueListRelationFilter = {
+  every?: Prisma.DeadLetterQueueWhereInput
+  some?: Prisma.DeadLetterQueueWhereInput
+  none?: Prisma.DeadLetterQueueWhereInput
+}
+
+export type DeadLetterQueueOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type DeadLetterQueueCountOrderByAggregateInput = {
@@ -461,45 +471,50 @@ export type DeadLetterQueueSumOrderByAggregateInput = {
   attemptCount?: Prisma.SortOrder
 }
 
-export type DeadLetterQueueNullableScalarRelationFilter = {
-  is?: Prisma.DeadLetterQueueWhereInput | null
-  isNot?: Prisma.DeadLetterQueueWhereInput | null
+export type DeadLetterQueueCreateNestedManyWithoutNotificationInput = {
+  create?: Prisma.XOR<Prisma.DeadLetterQueueCreateWithoutNotificationInput, Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationInput> | Prisma.DeadLetterQueueCreateWithoutNotificationInput[] | Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationInput[]
+  connectOrCreate?: Prisma.DeadLetterQueueCreateOrConnectWithoutNotificationInput | Prisma.DeadLetterQueueCreateOrConnectWithoutNotificationInput[]
+  createMany?: Prisma.DeadLetterQueueCreateManyNotificationInputEnvelope
+  connect?: Prisma.DeadLetterQueueWhereUniqueInput | Prisma.DeadLetterQueueWhereUniqueInput[]
 }
 
-export type DeadLetterQueueCreateNestedOneWithoutNotificationsInput = {
-  create?: Prisma.XOR<Prisma.DeadLetterQueueCreateWithoutNotificationsInput, Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationsInput>
-  connectOrCreate?: Prisma.DeadLetterQueueCreateOrConnectWithoutNotificationsInput
-  connect?: Prisma.DeadLetterQueueWhereUniqueInput
+export type DeadLetterQueueUncheckedCreateNestedManyWithoutNotificationInput = {
+  create?: Prisma.XOR<Prisma.DeadLetterQueueCreateWithoutNotificationInput, Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationInput> | Prisma.DeadLetterQueueCreateWithoutNotificationInput[] | Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationInput[]
+  connectOrCreate?: Prisma.DeadLetterQueueCreateOrConnectWithoutNotificationInput | Prisma.DeadLetterQueueCreateOrConnectWithoutNotificationInput[]
+  createMany?: Prisma.DeadLetterQueueCreateManyNotificationInputEnvelope
+  connect?: Prisma.DeadLetterQueueWhereUniqueInput | Prisma.DeadLetterQueueWhereUniqueInput[]
 }
 
-export type DeadLetterQueueUncheckedCreateNestedOneWithoutNotificationsInput = {
-  create?: Prisma.XOR<Prisma.DeadLetterQueueCreateWithoutNotificationsInput, Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationsInput>
-  connectOrCreate?: Prisma.DeadLetterQueueCreateOrConnectWithoutNotificationsInput
-  connect?: Prisma.DeadLetterQueueWhereUniqueInput
+export type DeadLetterQueueUpdateManyWithoutNotificationNestedInput = {
+  create?: Prisma.XOR<Prisma.DeadLetterQueueCreateWithoutNotificationInput, Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationInput> | Prisma.DeadLetterQueueCreateWithoutNotificationInput[] | Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationInput[]
+  connectOrCreate?: Prisma.DeadLetterQueueCreateOrConnectWithoutNotificationInput | Prisma.DeadLetterQueueCreateOrConnectWithoutNotificationInput[]
+  upsert?: Prisma.DeadLetterQueueUpsertWithWhereUniqueWithoutNotificationInput | Prisma.DeadLetterQueueUpsertWithWhereUniqueWithoutNotificationInput[]
+  createMany?: Prisma.DeadLetterQueueCreateManyNotificationInputEnvelope
+  set?: Prisma.DeadLetterQueueWhereUniqueInput | Prisma.DeadLetterQueueWhereUniqueInput[]
+  disconnect?: Prisma.DeadLetterQueueWhereUniqueInput | Prisma.DeadLetterQueueWhereUniqueInput[]
+  delete?: Prisma.DeadLetterQueueWhereUniqueInput | Prisma.DeadLetterQueueWhereUniqueInput[]
+  connect?: Prisma.DeadLetterQueueWhereUniqueInput | Prisma.DeadLetterQueueWhereUniqueInput[]
+  update?: Prisma.DeadLetterQueueUpdateWithWhereUniqueWithoutNotificationInput | Prisma.DeadLetterQueueUpdateWithWhereUniqueWithoutNotificationInput[]
+  updateMany?: Prisma.DeadLetterQueueUpdateManyWithWhereWithoutNotificationInput | Prisma.DeadLetterQueueUpdateManyWithWhereWithoutNotificationInput[]
+  deleteMany?: Prisma.DeadLetterQueueScalarWhereInput | Prisma.DeadLetterQueueScalarWhereInput[]
 }
 
-export type DeadLetterQueueUpdateOneWithoutNotificationsNestedInput = {
-  create?: Prisma.XOR<Prisma.DeadLetterQueueCreateWithoutNotificationsInput, Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationsInput>
-  connectOrCreate?: Prisma.DeadLetterQueueCreateOrConnectWithoutNotificationsInput
-  upsert?: Prisma.DeadLetterQueueUpsertWithoutNotificationsInput
-  disconnect?: Prisma.DeadLetterQueueWhereInput | boolean
-  delete?: Prisma.DeadLetterQueueWhereInput | boolean
-  connect?: Prisma.DeadLetterQueueWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DeadLetterQueueUpdateToOneWithWhereWithoutNotificationsInput, Prisma.DeadLetterQueueUpdateWithoutNotificationsInput>, Prisma.DeadLetterQueueUncheckedUpdateWithoutNotificationsInput>
+export type DeadLetterQueueUncheckedUpdateManyWithoutNotificationNestedInput = {
+  create?: Prisma.XOR<Prisma.DeadLetterQueueCreateWithoutNotificationInput, Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationInput> | Prisma.DeadLetterQueueCreateWithoutNotificationInput[] | Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationInput[]
+  connectOrCreate?: Prisma.DeadLetterQueueCreateOrConnectWithoutNotificationInput | Prisma.DeadLetterQueueCreateOrConnectWithoutNotificationInput[]
+  upsert?: Prisma.DeadLetterQueueUpsertWithWhereUniqueWithoutNotificationInput | Prisma.DeadLetterQueueUpsertWithWhereUniqueWithoutNotificationInput[]
+  createMany?: Prisma.DeadLetterQueueCreateManyNotificationInputEnvelope
+  set?: Prisma.DeadLetterQueueWhereUniqueInput | Prisma.DeadLetterQueueWhereUniqueInput[]
+  disconnect?: Prisma.DeadLetterQueueWhereUniqueInput | Prisma.DeadLetterQueueWhereUniqueInput[]
+  delete?: Prisma.DeadLetterQueueWhereUniqueInput | Prisma.DeadLetterQueueWhereUniqueInput[]
+  connect?: Prisma.DeadLetterQueueWhereUniqueInput | Prisma.DeadLetterQueueWhereUniqueInput[]
+  update?: Prisma.DeadLetterQueueUpdateWithWhereUniqueWithoutNotificationInput | Prisma.DeadLetterQueueUpdateWithWhereUniqueWithoutNotificationInput[]
+  updateMany?: Prisma.DeadLetterQueueUpdateManyWithWhereWithoutNotificationInput | Prisma.DeadLetterQueueUpdateManyWithWhereWithoutNotificationInput[]
+  deleteMany?: Prisma.DeadLetterQueueScalarWhereInput | Prisma.DeadLetterQueueScalarWhereInput[]
 }
 
-export type DeadLetterQueueUncheckedUpdateOneWithoutNotificationsNestedInput = {
-  create?: Prisma.XOR<Prisma.DeadLetterQueueCreateWithoutNotificationsInput, Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationsInput>
-  connectOrCreate?: Prisma.DeadLetterQueueCreateOrConnectWithoutNotificationsInput
-  upsert?: Prisma.DeadLetterQueueUpsertWithoutNotificationsInput
-  disconnect?: Prisma.DeadLetterQueueWhereInput | boolean
-  delete?: Prisma.DeadLetterQueueWhereInput | boolean
-  connect?: Prisma.DeadLetterQueueWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DeadLetterQueueUpdateToOneWithWhereWithoutNotificationsInput, Prisma.DeadLetterQueueUpdateWithoutNotificationsInput>, Prisma.DeadLetterQueueUncheckedUpdateWithoutNotificationsInput>
-}
-
-export type DeadLetterQueueCreateWithoutNotificationsInput = {
-  id: string
+export type DeadLetterQueueCreateWithoutNotificationInput = {
+  id?: string
   failureReason: string
   attemptCount: number
   finalAttemptTime: Date | string
@@ -510,8 +525,8 @@ export type DeadLetterQueueCreateWithoutNotificationsInput = {
   createdAt?: Date | string
 }
 
-export type DeadLetterQueueUncheckedCreateWithoutNotificationsInput = {
-  id: string
+export type DeadLetterQueueUncheckedCreateWithoutNotificationInput = {
+  id?: string
   failureReason: string
   attemptCount: number
   finalAttemptTime: Date | string
@@ -522,23 +537,61 @@ export type DeadLetterQueueUncheckedCreateWithoutNotificationsInput = {
   createdAt?: Date | string
 }
 
-export type DeadLetterQueueCreateOrConnectWithoutNotificationsInput = {
+export type DeadLetterQueueCreateOrConnectWithoutNotificationInput = {
   where: Prisma.DeadLetterQueueWhereUniqueInput
-  create: Prisma.XOR<Prisma.DeadLetterQueueCreateWithoutNotificationsInput, Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationsInput>
+  create: Prisma.XOR<Prisma.DeadLetterQueueCreateWithoutNotificationInput, Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationInput>
 }
 
-export type DeadLetterQueueUpsertWithoutNotificationsInput = {
-  update: Prisma.XOR<Prisma.DeadLetterQueueUpdateWithoutNotificationsInput, Prisma.DeadLetterQueueUncheckedUpdateWithoutNotificationsInput>
-  create: Prisma.XOR<Prisma.DeadLetterQueueCreateWithoutNotificationsInput, Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationsInput>
-  where?: Prisma.DeadLetterQueueWhereInput
+export type DeadLetterQueueCreateManyNotificationInputEnvelope = {
+  data: Prisma.DeadLetterQueueCreateManyNotificationInput | Prisma.DeadLetterQueueCreateManyNotificationInput[]
+  skipDuplicates?: boolean
 }
 
-export type DeadLetterQueueUpdateToOneWithWhereWithoutNotificationsInput = {
-  where?: Prisma.DeadLetterQueueWhereInput
-  data: Prisma.XOR<Prisma.DeadLetterQueueUpdateWithoutNotificationsInput, Prisma.DeadLetterQueueUncheckedUpdateWithoutNotificationsInput>
+export type DeadLetterQueueUpsertWithWhereUniqueWithoutNotificationInput = {
+  where: Prisma.DeadLetterQueueWhereUniqueInput
+  update: Prisma.XOR<Prisma.DeadLetterQueueUpdateWithoutNotificationInput, Prisma.DeadLetterQueueUncheckedUpdateWithoutNotificationInput>
+  create: Prisma.XOR<Prisma.DeadLetterQueueCreateWithoutNotificationInput, Prisma.DeadLetterQueueUncheckedCreateWithoutNotificationInput>
 }
 
-export type DeadLetterQueueUpdateWithoutNotificationsInput = {
+export type DeadLetterQueueUpdateWithWhereUniqueWithoutNotificationInput = {
+  where: Prisma.DeadLetterQueueWhereUniqueInput
+  data: Prisma.XOR<Prisma.DeadLetterQueueUpdateWithoutNotificationInput, Prisma.DeadLetterQueueUncheckedUpdateWithoutNotificationInput>
+}
+
+export type DeadLetterQueueUpdateManyWithWhereWithoutNotificationInput = {
+  where: Prisma.DeadLetterQueueScalarWhereInput
+  data: Prisma.XOR<Prisma.DeadLetterQueueUpdateManyMutationInput, Prisma.DeadLetterQueueUncheckedUpdateManyWithoutNotificationInput>
+}
+
+export type DeadLetterQueueScalarWhereInput = {
+  AND?: Prisma.DeadLetterQueueScalarWhereInput | Prisma.DeadLetterQueueScalarWhereInput[]
+  OR?: Prisma.DeadLetterQueueScalarWhereInput[]
+  NOT?: Prisma.DeadLetterQueueScalarWhereInput | Prisma.DeadLetterQueueScalarWhereInput[]
+  id?: Prisma.StringFilter<"DeadLetterQueue"> | string
+  notificationId?: Prisma.StringFilter<"DeadLetterQueue"> | string
+  failureReason?: Prisma.StringFilter<"DeadLetterQueue"> | string
+  attemptCount?: Prisma.IntFilter<"DeadLetterQueue"> | number
+  finalAttemptTime?: Prisma.DateTimeFilter<"DeadLetterQueue"> | Date | string
+  errorMessage?: Prisma.StringNullableFilter<"DeadLetterQueue"> | string | null
+  errorCode?: Prisma.StringNullableFilter<"DeadLetterQueue"> | string | null
+  requeuedBy?: Prisma.StringNullableFilter<"DeadLetterQueue"> | string | null
+  requeuedAt?: Prisma.DateTimeNullableFilter<"DeadLetterQueue"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"DeadLetterQueue"> | Date | string
+}
+
+export type DeadLetterQueueCreateManyNotificationInput = {
+  id?: string
+  failureReason: string
+  attemptCount: number
+  finalAttemptTime: Date | string
+  errorMessage?: string | null
+  errorCode?: string | null
+  requeuedBy?: string | null
+  requeuedAt?: Date | string | null
+  createdAt?: Date | string
+}
+
+export type DeadLetterQueueUpdateWithoutNotificationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   failureReason?: Prisma.StringFieldUpdateOperationsInput | string
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -550,7 +603,19 @@ export type DeadLetterQueueUpdateWithoutNotificationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type DeadLetterQueueUncheckedUpdateWithoutNotificationsInput = {
+export type DeadLetterQueueUncheckedUpdateWithoutNotificationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  failureReason?: Prisma.StringFieldUpdateOperationsInput | string
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  finalAttemptTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requeuedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  requeuedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type DeadLetterQueueUncheckedUpdateManyWithoutNotificationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   failureReason?: Prisma.StringFieldUpdateOperationsInput | string
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -575,7 +640,7 @@ export type DeadLetterQueueSelect<ExtArgs extends runtime.Types.Extensions.Inter
   requeuedBy?: boolean
   requeuedAt?: boolean
   createdAt?: boolean
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["deadLetterQueue"]>
 
 export type DeadLetterQueueSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -589,7 +654,7 @@ export type DeadLetterQueueSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   requeuedBy?: boolean
   requeuedAt?: boolean
   createdAt?: boolean
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["deadLetterQueue"]>
 
 export type DeadLetterQueueSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -603,7 +668,7 @@ export type DeadLetterQueueSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   requeuedBy?: boolean
   requeuedAt?: boolean
   createdAt?: boolean
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["deadLetterQueue"]>
 
 export type DeadLetterQueueSelectScalar = {
@@ -621,19 +686,19 @@ export type DeadLetterQueueSelectScalar = {
 
 export type DeadLetterQueueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "notificationId" | "failureReason" | "attemptCount" | "finalAttemptTime" | "errorMessage" | "errorCode" | "requeuedBy" | "requeuedAt" | "createdAt", ExtArgs["result"]["deadLetterQueue"]>
 export type DeadLetterQueueInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }
 export type DeadLetterQueueIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }
 export type DeadLetterQueueIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }
 
 export type $DeadLetterQueuePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DeadLetterQueue"
   objects: {
-    Notifications: Prisma.$NotificationsPayload<ExtArgs>
+    notification: Prisma.$NotificationsPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1040,7 +1105,7 @@ readonly fields: DeadLetterQueueFieldRefs;
  */
 export interface Prisma__DeadLetterQueueClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Notifications<T extends Prisma.NotificationsDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NotificationsDefaultArgs<ExtArgs>>): Prisma.Prisma__NotificationsClient<runtime.Types.Result.GetResult<Prisma.$NotificationsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  notification<T extends Prisma.NotificationsDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NotificationsDefaultArgs<ExtArgs>>): Prisma.Prisma__NotificationsClient<runtime.Types.Result.GetResult<Prisma.$NotificationsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

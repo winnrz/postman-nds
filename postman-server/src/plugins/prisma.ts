@@ -1,18 +1,10 @@
-import fp from "fastify-plugin";
+import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
 
-const prismaPlugin = fp(async (fastify) => {
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-  const prisma = new PrismaClient({ adapter });
+const connectionString = `${process.env.DATABASE_URL}`;
 
-  await prisma.$connect();
+const adapter = new PrismaPg({ connectionString });
+const prisma = new PrismaClient({ adapter });
 
-  fastify.decorate("prisma", prisma);
-
-  fastify.addHook("onClose", async (server) => {
-    await server.prisma.$disconnect();
-  });
-});
-
-export default prismaPlugin;
+export { prisma };

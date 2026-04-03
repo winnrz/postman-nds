@@ -1,0 +1,33 @@
+$kind: http-example
+name: '422 Unprocessable Entity — subjectTemplate on non-EMAIL channel'
+order: 3000
+request:
+  url: '{{baseUrl}}/templates'
+  method: POST
+  headers:
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "key": "sms-with-subject",
+        "name": "SMS With Subject (invalid)",
+        "channel": "SMS",
+        "subjectTemplate": "This should not be here",
+        "bodyTemplate": "Your OTP is {{otp}}"
+      }
+response:
+  statusCode: 422
+  statusText: Unprocessable Entity
+  headers:
+    - key: Content-Type
+      value: 'application/json; charset=utf-8'
+  body:
+    type: json
+    content: |-
+      {
+        "error": "Validation failed",
+        "field": "subjectTemplate",
+        "message": "subjectTemplate is only valid for the email channel"
+      }

@@ -18,10 +18,15 @@ export { Prisma }
 export * as $Enums from './enums.js'
 export * from './enums.js';
 /**
- * Model ApiKeys
+ * Model Notifications
  * 
  */
-export type ApiKeys = Prisma.ApiKeysModel
+export type Notifications = Prisma.NotificationsModel
+/**
+ * Model NotificationQueue
+ * 
+ */
+export type NotificationQueue = Prisma.NotificationQueueModel
 /**
  * Model AttemptLog
  * 
@@ -38,17 +43,12 @@ export type DeadLetterQueue = Prisma.DeadLetterQueueModel
  */
 export type InAppNotifications = Prisma.InAppNotificationsModel
 /**
- * Model NotificationQueue
- * 
- */
-export type NotificationQueue = Prisma.NotificationQueueModel
-/**
- * Model Notifications
- * 
- */
-export type Notifications = Prisma.NotificationsModel
-/**
  * Model Templates
  * 
  */
 export type Templates = Prisma.TemplatesModel
+/**
+ * Model ApiKeys
+ * 
+ */
+export type ApiKeys = Prisma.ApiKeysModel

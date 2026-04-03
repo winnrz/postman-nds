@@ -51,13 +51,13 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  ApiKeys: 'ApiKeys',
+  Notifications: 'Notifications',
+  NotificationQueue: 'NotificationQueue',
   AttemptLog: 'AttemptLog',
   DeadLetterQueue: 'DeadLetterQueue',
   InAppNotifications: 'InAppNotifications',
-  NotificationQueue: 'NotificationQueue',
-  Notifications: 'Notifications',
-  Templates: 'Templates'
+  Templates: 'Templates',
+  ApiKeys: 'ApiKeys'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -76,16 +76,41 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const ApiKeysScalarFieldEnum = {
+export const NotificationsScalarFieldEnum = {
   id: 'id',
-  name: 'name',
-  keyHash: 'keyHash',
-  lastUsedAt: 'lastUsedAt',
-  revokedAt: 'revokedAt',
+  templateId: 'templateId',
+  recipientId: 'recipientId',
+  channel: 'channel',
+  priority: 'priority',
+  status: 'status',
+  subject: 'subject',
+  body: 'body',
+  metadata: 'metadata',
+  idempotencyKey: 'idempotencyKey',
+  attemptCount: 'attemptCount',
+  maxAttempts: 'maxAttempts',
+  scheduledAt: 'scheduledAt',
+  enqueuedAt: 'enqueuedAt',
+  deliveredAt: 'deliveredAt',
+  providerMessageId: 'providerMessageId',
+  failureReason: 'failureReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationsScalarFieldEnum = (typeof NotificationsScalarFieldEnum)[keyof typeof NotificationsScalarFieldEnum]
+
+
+export const NotificationQueueScalarFieldEnum = {
+  id: 'id',
+  notificationId: 'notificationId',
+  priority: 'priority',
+  workerId: 'workerId',
+  visibilityTimeout: 'visibilityTimeout',
   createdAt: 'createdAt'
 } as const
 
-export type ApiKeysScalarFieldEnum = (typeof ApiKeysScalarFieldEnum)[keyof typeof ApiKeysScalarFieldEnum]
+export type NotificationQueueScalarFieldEnum = (typeof NotificationQueueScalarFieldEnum)[keyof typeof NotificationQueueScalarFieldEnum]
 
 
 export const AttemptLogScalarFieldEnum = {
@@ -135,43 +160,6 @@ export const InAppNotificationsScalarFieldEnum = {
 export type InAppNotificationsScalarFieldEnum = (typeof InAppNotificationsScalarFieldEnum)[keyof typeof InAppNotificationsScalarFieldEnum]
 
 
-export const NotificationQueueScalarFieldEnum = {
-  id: 'id',
-  notificationId: 'notificationId',
-  priority: 'priority',
-  workerId: 'workerId',
-  visibilityTimeout: 'visibilityTimeout',
-  createdAt: 'createdAt'
-} as const
-
-export type NotificationQueueScalarFieldEnum = (typeof NotificationQueueScalarFieldEnum)[keyof typeof NotificationQueueScalarFieldEnum]
-
-
-export const NotificationsScalarFieldEnum = {
-  id: 'id',
-  templateId: 'templateId',
-  recipientId: 'recipientId',
-  channel: 'channel',
-  priority: 'priority',
-  status: 'status',
-  subject: 'subject',
-  body: 'body',
-  metadata: 'metadata',
-  idempotencyKey: 'idempotencyKey',
-  attemptCount: 'attemptCount',
-  maxAttempts: 'maxAttempts',
-  scheduledAt: 'scheduledAt',
-  enqueuedAt: 'enqueuedAt',
-  deliveredAt: 'deliveredAt',
-  providerMessageId: 'providerMessageId',
-  failureReason: 'failureReason',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type NotificationsScalarFieldEnum = (typeof NotificationsScalarFieldEnum)[keyof typeof NotificationsScalarFieldEnum]
-
-
 export const TemplatesScalarFieldEnum = {
   id: 'id',
   key: 'key',
@@ -186,6 +174,18 @@ export const TemplatesScalarFieldEnum = {
 } as const
 
 export type TemplatesScalarFieldEnum = (typeof TemplatesScalarFieldEnum)[keyof typeof TemplatesScalarFieldEnum]
+
+
+export const ApiKeysScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  keyHash: 'keyHash',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type ApiKeysScalarFieldEnum = (typeof ApiKeysScalarFieldEnum)[keyof typeof ApiKeysScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -212,14 +212,6 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -227,4 +219,12 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

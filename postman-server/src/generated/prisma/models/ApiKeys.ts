@@ -238,7 +238,7 @@ export type ApiKeysScalarWhereWithAggregatesInput = {
 }
 
 export type ApiKeysCreateInput = {
-  id: string
+  id?: string
   name: string
   keyHash: string
   lastUsedAt?: Date | string | null
@@ -247,7 +247,7 @@ export type ApiKeysCreateInput = {
 }
 
 export type ApiKeysUncheckedCreateInput = {
-  id: string
+  id?: string
   name: string
   keyHash: string
   lastUsedAt?: Date | string | null
@@ -274,7 +274,7 @@ export type ApiKeysUncheckedUpdateInput = {
 }
 
 export type ApiKeysCreateManyInput = {
-  id: string
+  id?: string
   name: string
   keyHash: string
   lastUsedAt?: Date | string | null
@@ -325,18 +325,6 @@ export type ApiKeysMinOrderByAggregateInput = {
   lastUsedAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-}
-
-export type StringFieldUpdateOperationsInput = {
-  set?: string
-}
-
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
 }
 
 

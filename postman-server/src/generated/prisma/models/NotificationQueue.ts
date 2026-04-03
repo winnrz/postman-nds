@@ -190,7 +190,7 @@ export type NotificationQueueWhereInput = {
   workerId?: Prisma.StringNullableFilter<"NotificationQueue"> | string | null
   visibilityTimeout?: Prisma.DateTimeNullableFilter<"NotificationQueue"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"NotificationQueue"> | Date | string
-  Notifications?: Prisma.XOR<Prisma.NotificationsScalarRelationFilter, Prisma.NotificationsWhereInput>
+  notification?: Prisma.XOR<Prisma.NotificationsScalarRelationFilter, Prisma.NotificationsWhereInput>
 }
 
 export type NotificationQueueOrderByWithRelationInput = {
@@ -200,7 +200,7 @@ export type NotificationQueueOrderByWithRelationInput = {
   workerId?: Prisma.SortOrderInput | Prisma.SortOrder
   visibilityTimeout?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  Notifications?: Prisma.NotificationsOrderByWithRelationInput
+  notification?: Prisma.NotificationsOrderByWithRelationInput
 }
 
 export type NotificationQueueWhereUniqueInput = Prisma.AtLeast<{
@@ -213,7 +213,7 @@ export type NotificationQueueWhereUniqueInput = Prisma.AtLeast<{
   workerId?: Prisma.StringNullableFilter<"NotificationQueue"> | string | null
   visibilityTimeout?: Prisma.DateTimeNullableFilter<"NotificationQueue"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"NotificationQueue"> | Date | string
-  Notifications?: Prisma.XOR<Prisma.NotificationsScalarRelationFilter, Prisma.NotificationsWhereInput>
+  notification?: Prisma.XOR<Prisma.NotificationsScalarRelationFilter, Prisma.NotificationsWhereInput>
 }, "id" | "notificationId">
 
 export type NotificationQueueOrderByWithAggregationInput = {
@@ -241,16 +241,16 @@ export type NotificationQueueScalarWhereWithAggregatesInput = {
 }
 
 export type NotificationQueueCreateInput = {
-  id: string
+  id?: string
   priority?: $Enums.NotificationPriority
   workerId?: string | null
   visibilityTimeout?: Date | string | null
   createdAt?: Date | string
-  Notifications: Prisma.NotificationsCreateNestedOneWithoutNotificationQueueInput
+  notification: Prisma.NotificationsCreateNestedOneWithoutQueueEntryInput
 }
 
 export type NotificationQueueUncheckedCreateInput = {
-  id: string
+  id?: string
   notificationId: string
   priority?: $Enums.NotificationPriority
   workerId?: string | null
@@ -264,7 +264,7 @@ export type NotificationQueueUpdateInput = {
   workerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibilityTimeout?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  Notifications?: Prisma.NotificationsUpdateOneRequiredWithoutNotificationQueueNestedInput
+  notification?: Prisma.NotificationsUpdateOneRequiredWithoutQueueEntryNestedInput
 }
 
 export type NotificationQueueUncheckedUpdateInput = {
@@ -277,7 +277,7 @@ export type NotificationQueueUncheckedUpdateInput = {
 }
 
 export type NotificationQueueCreateManyInput = {
-  id: string
+  id?: string
   notificationId: string
   priority?: $Enums.NotificationPriority
   workerId?: string | null
@@ -300,6 +300,11 @@ export type NotificationQueueUncheckedUpdateManyInput = {
   workerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibilityTimeout?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type NotificationQueueNullableScalarRelationFilter = {
+  is?: Prisma.NotificationQueueWhereInput | null
+  isNot?: Prisma.NotificationQueueWhereInput | null
 }
 
 export type NotificationQueueCountOrderByAggregateInput = {
@@ -329,80 +334,71 @@ export type NotificationQueueMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
-export type NotificationQueueNullableScalarRelationFilter = {
-  is?: Prisma.NotificationQueueWhereInput | null
-  isNot?: Prisma.NotificationQueueWhereInput | null
-}
-
-export type EnumNotificationPriorityFieldUpdateOperationsInput = {
-  set?: $Enums.NotificationPriority
-}
-
-export type NotificationQueueCreateNestedOneWithoutNotificationsInput = {
-  create?: Prisma.XOR<Prisma.NotificationQueueCreateWithoutNotificationsInput, Prisma.NotificationQueueUncheckedCreateWithoutNotificationsInput>
-  connectOrCreate?: Prisma.NotificationQueueCreateOrConnectWithoutNotificationsInput
+export type NotificationQueueCreateNestedOneWithoutNotificationInput = {
+  create?: Prisma.XOR<Prisma.NotificationQueueCreateWithoutNotificationInput, Prisma.NotificationQueueUncheckedCreateWithoutNotificationInput>
+  connectOrCreate?: Prisma.NotificationQueueCreateOrConnectWithoutNotificationInput
   connect?: Prisma.NotificationQueueWhereUniqueInput
 }
 
-export type NotificationQueueUncheckedCreateNestedOneWithoutNotificationsInput = {
-  create?: Prisma.XOR<Prisma.NotificationQueueCreateWithoutNotificationsInput, Prisma.NotificationQueueUncheckedCreateWithoutNotificationsInput>
-  connectOrCreate?: Prisma.NotificationQueueCreateOrConnectWithoutNotificationsInput
+export type NotificationQueueUncheckedCreateNestedOneWithoutNotificationInput = {
+  create?: Prisma.XOR<Prisma.NotificationQueueCreateWithoutNotificationInput, Prisma.NotificationQueueUncheckedCreateWithoutNotificationInput>
+  connectOrCreate?: Prisma.NotificationQueueCreateOrConnectWithoutNotificationInput
   connect?: Prisma.NotificationQueueWhereUniqueInput
 }
 
-export type NotificationQueueUpdateOneWithoutNotificationsNestedInput = {
-  create?: Prisma.XOR<Prisma.NotificationQueueCreateWithoutNotificationsInput, Prisma.NotificationQueueUncheckedCreateWithoutNotificationsInput>
-  connectOrCreate?: Prisma.NotificationQueueCreateOrConnectWithoutNotificationsInput
-  upsert?: Prisma.NotificationQueueUpsertWithoutNotificationsInput
+export type NotificationQueueUpdateOneWithoutNotificationNestedInput = {
+  create?: Prisma.XOR<Prisma.NotificationQueueCreateWithoutNotificationInput, Prisma.NotificationQueueUncheckedCreateWithoutNotificationInput>
+  connectOrCreate?: Prisma.NotificationQueueCreateOrConnectWithoutNotificationInput
+  upsert?: Prisma.NotificationQueueUpsertWithoutNotificationInput
   disconnect?: Prisma.NotificationQueueWhereInput | boolean
   delete?: Prisma.NotificationQueueWhereInput | boolean
   connect?: Prisma.NotificationQueueWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.NotificationQueueUpdateToOneWithWhereWithoutNotificationsInput, Prisma.NotificationQueueUpdateWithoutNotificationsInput>, Prisma.NotificationQueueUncheckedUpdateWithoutNotificationsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.NotificationQueueUpdateToOneWithWhereWithoutNotificationInput, Prisma.NotificationQueueUpdateWithoutNotificationInput>, Prisma.NotificationQueueUncheckedUpdateWithoutNotificationInput>
 }
 
-export type NotificationQueueUncheckedUpdateOneWithoutNotificationsNestedInput = {
-  create?: Prisma.XOR<Prisma.NotificationQueueCreateWithoutNotificationsInput, Prisma.NotificationQueueUncheckedCreateWithoutNotificationsInput>
-  connectOrCreate?: Prisma.NotificationQueueCreateOrConnectWithoutNotificationsInput
-  upsert?: Prisma.NotificationQueueUpsertWithoutNotificationsInput
+export type NotificationQueueUncheckedUpdateOneWithoutNotificationNestedInput = {
+  create?: Prisma.XOR<Prisma.NotificationQueueCreateWithoutNotificationInput, Prisma.NotificationQueueUncheckedCreateWithoutNotificationInput>
+  connectOrCreate?: Prisma.NotificationQueueCreateOrConnectWithoutNotificationInput
+  upsert?: Prisma.NotificationQueueUpsertWithoutNotificationInput
   disconnect?: Prisma.NotificationQueueWhereInput | boolean
   delete?: Prisma.NotificationQueueWhereInput | boolean
   connect?: Prisma.NotificationQueueWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.NotificationQueueUpdateToOneWithWhereWithoutNotificationsInput, Prisma.NotificationQueueUpdateWithoutNotificationsInput>, Prisma.NotificationQueueUncheckedUpdateWithoutNotificationsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.NotificationQueueUpdateToOneWithWhereWithoutNotificationInput, Prisma.NotificationQueueUpdateWithoutNotificationInput>, Prisma.NotificationQueueUncheckedUpdateWithoutNotificationInput>
 }
 
-export type NotificationQueueCreateWithoutNotificationsInput = {
-  id: string
+export type NotificationQueueCreateWithoutNotificationInput = {
+  id?: string
   priority?: $Enums.NotificationPriority
   workerId?: string | null
   visibilityTimeout?: Date | string | null
   createdAt?: Date | string
 }
 
-export type NotificationQueueUncheckedCreateWithoutNotificationsInput = {
-  id: string
+export type NotificationQueueUncheckedCreateWithoutNotificationInput = {
+  id?: string
   priority?: $Enums.NotificationPriority
   workerId?: string | null
   visibilityTimeout?: Date | string | null
   createdAt?: Date | string
 }
 
-export type NotificationQueueCreateOrConnectWithoutNotificationsInput = {
+export type NotificationQueueCreateOrConnectWithoutNotificationInput = {
   where: Prisma.NotificationQueueWhereUniqueInput
-  create: Prisma.XOR<Prisma.NotificationQueueCreateWithoutNotificationsInput, Prisma.NotificationQueueUncheckedCreateWithoutNotificationsInput>
+  create: Prisma.XOR<Prisma.NotificationQueueCreateWithoutNotificationInput, Prisma.NotificationQueueUncheckedCreateWithoutNotificationInput>
 }
 
-export type NotificationQueueUpsertWithoutNotificationsInput = {
-  update: Prisma.XOR<Prisma.NotificationQueueUpdateWithoutNotificationsInput, Prisma.NotificationQueueUncheckedUpdateWithoutNotificationsInput>
-  create: Prisma.XOR<Prisma.NotificationQueueCreateWithoutNotificationsInput, Prisma.NotificationQueueUncheckedCreateWithoutNotificationsInput>
+export type NotificationQueueUpsertWithoutNotificationInput = {
+  update: Prisma.XOR<Prisma.NotificationQueueUpdateWithoutNotificationInput, Prisma.NotificationQueueUncheckedUpdateWithoutNotificationInput>
+  create: Prisma.XOR<Prisma.NotificationQueueCreateWithoutNotificationInput, Prisma.NotificationQueueUncheckedCreateWithoutNotificationInput>
   where?: Prisma.NotificationQueueWhereInput
 }
 
-export type NotificationQueueUpdateToOneWithWhereWithoutNotificationsInput = {
+export type NotificationQueueUpdateToOneWithWhereWithoutNotificationInput = {
   where?: Prisma.NotificationQueueWhereInput
-  data: Prisma.XOR<Prisma.NotificationQueueUpdateWithoutNotificationsInput, Prisma.NotificationQueueUncheckedUpdateWithoutNotificationsInput>
+  data: Prisma.XOR<Prisma.NotificationQueueUpdateWithoutNotificationInput, Prisma.NotificationQueueUncheckedUpdateWithoutNotificationInput>
 }
 
-export type NotificationQueueUpdateWithoutNotificationsInput = {
+export type NotificationQueueUpdateWithoutNotificationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   priority?: Prisma.EnumNotificationPriorityFieldUpdateOperationsInput | $Enums.NotificationPriority
   workerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -410,7 +406,7 @@ export type NotificationQueueUpdateWithoutNotificationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type NotificationQueueUncheckedUpdateWithoutNotificationsInput = {
+export type NotificationQueueUncheckedUpdateWithoutNotificationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   priority?: Prisma.EnumNotificationPriorityFieldUpdateOperationsInput | $Enums.NotificationPriority
   workerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -427,7 +423,7 @@ export type NotificationQueueSelect<ExtArgs extends runtime.Types.Extensions.Int
   workerId?: boolean
   visibilityTimeout?: boolean
   createdAt?: boolean
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["notificationQueue"]>
 
 export type NotificationQueueSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -437,7 +433,7 @@ export type NotificationQueueSelectCreateManyAndReturn<ExtArgs extends runtime.T
   workerId?: boolean
   visibilityTimeout?: boolean
   createdAt?: boolean
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["notificationQueue"]>
 
 export type NotificationQueueSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -447,7 +443,7 @@ export type NotificationQueueSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   workerId?: boolean
   visibilityTimeout?: boolean
   createdAt?: boolean
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["notificationQueue"]>
 
 export type NotificationQueueSelectScalar = {
@@ -461,19 +457,19 @@ export type NotificationQueueSelectScalar = {
 
 export type NotificationQueueOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "notificationId" | "priority" | "workerId" | "visibilityTimeout" | "createdAt", ExtArgs["result"]["notificationQueue"]>
 export type NotificationQueueInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }
 export type NotificationQueueIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }
 export type NotificationQueueIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }
 
 export type $NotificationQueuePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "NotificationQueue"
   objects: {
-    Notifications: Prisma.$NotificationsPayload<ExtArgs>
+    notification: Prisma.$NotificationsPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -876,7 +872,7 @@ readonly fields: NotificationQueueFieldRefs;
  */
 export interface Prisma__NotificationQueueClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Notifications<T extends Prisma.NotificationsDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NotificationsDefaultArgs<ExtArgs>>): Prisma.Prisma__NotificationsClient<runtime.Types.Result.GetResult<Prisma.$NotificationsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  notification<T extends Prisma.NotificationsDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NotificationsDefaultArgs<ExtArgs>>): Prisma.Prisma__NotificationsClient<runtime.Types.Result.GetResult<Prisma.$NotificationsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

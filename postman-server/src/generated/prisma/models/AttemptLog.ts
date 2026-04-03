@@ -268,7 +268,7 @@ export type AttemptLogWhereInput = {
   errorCode?: Prisma.StringNullableFilter<"AttemptLog"> | string | null
   errorMessage?: Prisma.StringNullableFilter<"AttemptLog"> | string | null
   durationMs?: Prisma.IntNullableFilter<"AttemptLog"> | number | null
-  Notifications?: Prisma.XOR<Prisma.NotificationsScalarRelationFilter, Prisma.NotificationsWhereInput>
+  notification?: Prisma.XOR<Prisma.NotificationsScalarRelationFilter, Prisma.NotificationsWhereInput>
 }
 
 export type AttemptLogOrderByWithRelationInput = {
@@ -283,7 +283,7 @@ export type AttemptLogOrderByWithRelationInput = {
   errorCode?: Prisma.SortOrderInput | Prisma.SortOrder
   errorMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   durationMs?: Prisma.SortOrderInput | Prisma.SortOrder
-  Notifications?: Prisma.NotificationsOrderByWithRelationInput
+  notification?: Prisma.NotificationsOrderByWithRelationInput
 }
 
 export type AttemptLogWhereUniqueInput = Prisma.AtLeast<{
@@ -301,7 +301,7 @@ export type AttemptLogWhereUniqueInput = Prisma.AtLeast<{
   errorCode?: Prisma.StringNullableFilter<"AttemptLog"> | string | null
   errorMessage?: Prisma.StringNullableFilter<"AttemptLog"> | string | null
   durationMs?: Prisma.IntNullableFilter<"AttemptLog"> | number | null
-  Notifications?: Prisma.XOR<Prisma.NotificationsScalarRelationFilter, Prisma.NotificationsWhereInput>
+  notification?: Prisma.XOR<Prisma.NotificationsScalarRelationFilter, Prisma.NotificationsWhereInput>
 }, "id">
 
 export type AttemptLogOrderByWithAggregationInput = {
@@ -341,7 +341,7 @@ export type AttemptLogScalarWhereWithAggregatesInput = {
 }
 
 export type AttemptLogCreateInput = {
-  id: string
+  id?: string
   attemptNumber: number
   attemptedAt?: Date | string
   workerId: string
@@ -351,11 +351,11 @@ export type AttemptLogCreateInput = {
   errorCode?: string | null
   errorMessage?: string | null
   durationMs?: number | null
-  Notifications: Prisma.NotificationsCreateNestedOneWithoutAttemptLogInput
+  notification: Prisma.NotificationsCreateNestedOneWithoutAttemptLogsInput
 }
 
 export type AttemptLogUncheckedCreateInput = {
-  id: string
+  id?: string
   notificationId: string
   attemptNumber: number
   attemptedAt?: Date | string
@@ -379,7 +379,7 @@ export type AttemptLogUpdateInput = {
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   durationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  Notifications?: Prisma.NotificationsUpdateOneRequiredWithoutAttemptLogNestedInput
+  notification?: Prisma.NotificationsUpdateOneRequiredWithoutAttemptLogsNestedInput
 }
 
 export type AttemptLogUncheckedUpdateInput = {
@@ -397,7 +397,7 @@ export type AttemptLogUncheckedUpdateInput = {
 }
 
 export type AttemptLogCreateManyInput = {
-  id: string
+  id?: string
   notificationId: string
   attemptNumber: number
   attemptedAt?: Date | string
@@ -435,6 +435,16 @@ export type AttemptLogUncheckedUpdateManyInput = {
   errorCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   errorMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   durationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type AttemptLogListRelationFilter = {
+  every?: Prisma.AttemptLogWhereInput
+  some?: Prisma.AttemptLogWhereInput
+  none?: Prisma.AttemptLogWhereInput
+}
+
+export type AttemptLogOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type AttemptLogCountOrderByAggregateInput = {
@@ -489,22 +499,46 @@ export type AttemptLogSumOrderByAggregateInput = {
   durationMs?: Prisma.SortOrder
 }
 
-export type AttemptLogListRelationFilter = {
-  every?: Prisma.AttemptLogWhereInput
-  some?: Prisma.AttemptLogWhereInput
-  none?: Prisma.AttemptLogWhereInput
+export type AttemptLogCreateNestedManyWithoutNotificationInput = {
+  create?: Prisma.XOR<Prisma.AttemptLogCreateWithoutNotificationInput, Prisma.AttemptLogUncheckedCreateWithoutNotificationInput> | Prisma.AttemptLogCreateWithoutNotificationInput[] | Prisma.AttemptLogUncheckedCreateWithoutNotificationInput[]
+  connectOrCreate?: Prisma.AttemptLogCreateOrConnectWithoutNotificationInput | Prisma.AttemptLogCreateOrConnectWithoutNotificationInput[]
+  createMany?: Prisma.AttemptLogCreateManyNotificationInputEnvelope
+  connect?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
 }
 
-export type AttemptLogOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+export type AttemptLogUncheckedCreateNestedManyWithoutNotificationInput = {
+  create?: Prisma.XOR<Prisma.AttemptLogCreateWithoutNotificationInput, Prisma.AttemptLogUncheckedCreateWithoutNotificationInput> | Prisma.AttemptLogCreateWithoutNotificationInput[] | Prisma.AttemptLogUncheckedCreateWithoutNotificationInput[]
+  connectOrCreate?: Prisma.AttemptLogCreateOrConnectWithoutNotificationInput | Prisma.AttemptLogCreateOrConnectWithoutNotificationInput[]
+  createMany?: Prisma.AttemptLogCreateManyNotificationInputEnvelope
+  connect?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type AttemptLogUpdateManyWithoutNotificationNestedInput = {
+  create?: Prisma.XOR<Prisma.AttemptLogCreateWithoutNotificationInput, Prisma.AttemptLogUncheckedCreateWithoutNotificationInput> | Prisma.AttemptLogCreateWithoutNotificationInput[] | Prisma.AttemptLogUncheckedCreateWithoutNotificationInput[]
+  connectOrCreate?: Prisma.AttemptLogCreateOrConnectWithoutNotificationInput | Prisma.AttemptLogCreateOrConnectWithoutNotificationInput[]
+  upsert?: Prisma.AttemptLogUpsertWithWhereUniqueWithoutNotificationInput | Prisma.AttemptLogUpsertWithWhereUniqueWithoutNotificationInput[]
+  createMany?: Prisma.AttemptLogCreateManyNotificationInputEnvelope
+  set?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
+  disconnect?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
+  delete?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
+  connect?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
+  update?: Prisma.AttemptLogUpdateWithWhereUniqueWithoutNotificationInput | Prisma.AttemptLogUpdateWithWhereUniqueWithoutNotificationInput[]
+  updateMany?: Prisma.AttemptLogUpdateManyWithWhereWithoutNotificationInput | Prisma.AttemptLogUpdateManyWithWhereWithoutNotificationInput[]
+  deleteMany?: Prisma.AttemptLogScalarWhereInput | Prisma.AttemptLogScalarWhereInput[]
+}
+
+export type AttemptLogUncheckedUpdateManyWithoutNotificationNestedInput = {
+  create?: Prisma.XOR<Prisma.AttemptLogCreateWithoutNotificationInput, Prisma.AttemptLogUncheckedCreateWithoutNotificationInput> | Prisma.AttemptLogCreateWithoutNotificationInput[] | Prisma.AttemptLogUncheckedCreateWithoutNotificationInput[]
+  connectOrCreate?: Prisma.AttemptLogCreateOrConnectWithoutNotificationInput | Prisma.AttemptLogCreateOrConnectWithoutNotificationInput[]
+  upsert?: Prisma.AttemptLogUpsertWithWhereUniqueWithoutNotificationInput | Prisma.AttemptLogUpsertWithWhereUniqueWithoutNotificationInput[]
+  createMany?: Prisma.AttemptLogCreateManyNotificationInputEnvelope
+  set?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
+  disconnect?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
+  delete?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
+  connect?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
+  update?: Prisma.AttemptLogUpdateWithWhereUniqueWithoutNotificationInput | Prisma.AttemptLogUpdateWithWhereUniqueWithoutNotificationInput[]
+  updateMany?: Prisma.AttemptLogUpdateManyWithWhereWithoutNotificationInput | Prisma.AttemptLogUpdateManyWithWhereWithoutNotificationInput[]
+  deleteMany?: Prisma.AttemptLogScalarWhereInput | Prisma.AttemptLogScalarWhereInput[]
 }
 
 export type NullableEnumNotificationProviderFieldUpdateOperationsInput = {
@@ -515,10 +549,6 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number
@@ -527,50 +557,8 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type AttemptLogCreateNestedManyWithoutNotificationsInput = {
-  create?: Prisma.XOR<Prisma.AttemptLogCreateWithoutNotificationsInput, Prisma.AttemptLogUncheckedCreateWithoutNotificationsInput> | Prisma.AttemptLogCreateWithoutNotificationsInput[] | Prisma.AttemptLogUncheckedCreateWithoutNotificationsInput[]
-  connectOrCreate?: Prisma.AttemptLogCreateOrConnectWithoutNotificationsInput | Prisma.AttemptLogCreateOrConnectWithoutNotificationsInput[]
-  createMany?: Prisma.AttemptLogCreateManyNotificationsInputEnvelope
-  connect?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
-}
-
-export type AttemptLogUncheckedCreateNestedManyWithoutNotificationsInput = {
-  create?: Prisma.XOR<Prisma.AttemptLogCreateWithoutNotificationsInput, Prisma.AttemptLogUncheckedCreateWithoutNotificationsInput> | Prisma.AttemptLogCreateWithoutNotificationsInput[] | Prisma.AttemptLogUncheckedCreateWithoutNotificationsInput[]
-  connectOrCreate?: Prisma.AttemptLogCreateOrConnectWithoutNotificationsInput | Prisma.AttemptLogCreateOrConnectWithoutNotificationsInput[]
-  createMany?: Prisma.AttemptLogCreateManyNotificationsInputEnvelope
-  connect?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
-}
-
-export type AttemptLogUpdateManyWithoutNotificationsNestedInput = {
-  create?: Prisma.XOR<Prisma.AttemptLogCreateWithoutNotificationsInput, Prisma.AttemptLogUncheckedCreateWithoutNotificationsInput> | Prisma.AttemptLogCreateWithoutNotificationsInput[] | Prisma.AttemptLogUncheckedCreateWithoutNotificationsInput[]
-  connectOrCreate?: Prisma.AttemptLogCreateOrConnectWithoutNotificationsInput | Prisma.AttemptLogCreateOrConnectWithoutNotificationsInput[]
-  upsert?: Prisma.AttemptLogUpsertWithWhereUniqueWithoutNotificationsInput | Prisma.AttemptLogUpsertWithWhereUniqueWithoutNotificationsInput[]
-  createMany?: Prisma.AttemptLogCreateManyNotificationsInputEnvelope
-  set?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
-  disconnect?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
-  delete?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
-  connect?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
-  update?: Prisma.AttemptLogUpdateWithWhereUniqueWithoutNotificationsInput | Prisma.AttemptLogUpdateWithWhereUniqueWithoutNotificationsInput[]
-  updateMany?: Prisma.AttemptLogUpdateManyWithWhereWithoutNotificationsInput | Prisma.AttemptLogUpdateManyWithWhereWithoutNotificationsInput[]
-  deleteMany?: Prisma.AttemptLogScalarWhereInput | Prisma.AttemptLogScalarWhereInput[]
-}
-
-export type AttemptLogUncheckedUpdateManyWithoutNotificationsNestedInput = {
-  create?: Prisma.XOR<Prisma.AttemptLogCreateWithoutNotificationsInput, Prisma.AttemptLogUncheckedCreateWithoutNotificationsInput> | Prisma.AttemptLogCreateWithoutNotificationsInput[] | Prisma.AttemptLogUncheckedCreateWithoutNotificationsInput[]
-  connectOrCreate?: Prisma.AttemptLogCreateOrConnectWithoutNotificationsInput | Prisma.AttemptLogCreateOrConnectWithoutNotificationsInput[]
-  upsert?: Prisma.AttemptLogUpsertWithWhereUniqueWithoutNotificationsInput | Prisma.AttemptLogUpsertWithWhereUniqueWithoutNotificationsInput[]
-  createMany?: Prisma.AttemptLogCreateManyNotificationsInputEnvelope
-  set?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
-  disconnect?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
-  delete?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
-  connect?: Prisma.AttemptLogWhereUniqueInput | Prisma.AttemptLogWhereUniqueInput[]
-  update?: Prisma.AttemptLogUpdateWithWhereUniqueWithoutNotificationsInput | Prisma.AttemptLogUpdateWithWhereUniqueWithoutNotificationsInput[]
-  updateMany?: Prisma.AttemptLogUpdateManyWithWhereWithoutNotificationsInput | Prisma.AttemptLogUpdateManyWithWhereWithoutNotificationsInput[]
-  deleteMany?: Prisma.AttemptLogScalarWhereInput | Prisma.AttemptLogScalarWhereInput[]
-}
-
-export type AttemptLogCreateWithoutNotificationsInput = {
-  id: string
+export type AttemptLogCreateWithoutNotificationInput = {
+  id?: string
   attemptNumber: number
   attemptedAt?: Date | string
   workerId: string
@@ -582,8 +570,8 @@ export type AttemptLogCreateWithoutNotificationsInput = {
   durationMs?: number | null
 }
 
-export type AttemptLogUncheckedCreateWithoutNotificationsInput = {
-  id: string
+export type AttemptLogUncheckedCreateWithoutNotificationInput = {
+  id?: string
   attemptNumber: number
   attemptedAt?: Date | string
   workerId: string
@@ -595,30 +583,30 @@ export type AttemptLogUncheckedCreateWithoutNotificationsInput = {
   durationMs?: number | null
 }
 
-export type AttemptLogCreateOrConnectWithoutNotificationsInput = {
+export type AttemptLogCreateOrConnectWithoutNotificationInput = {
   where: Prisma.AttemptLogWhereUniqueInput
-  create: Prisma.XOR<Prisma.AttemptLogCreateWithoutNotificationsInput, Prisma.AttemptLogUncheckedCreateWithoutNotificationsInput>
+  create: Prisma.XOR<Prisma.AttemptLogCreateWithoutNotificationInput, Prisma.AttemptLogUncheckedCreateWithoutNotificationInput>
 }
 
-export type AttemptLogCreateManyNotificationsInputEnvelope = {
-  data: Prisma.AttemptLogCreateManyNotificationsInput | Prisma.AttemptLogCreateManyNotificationsInput[]
+export type AttemptLogCreateManyNotificationInputEnvelope = {
+  data: Prisma.AttemptLogCreateManyNotificationInput | Prisma.AttemptLogCreateManyNotificationInput[]
   skipDuplicates?: boolean
 }
 
-export type AttemptLogUpsertWithWhereUniqueWithoutNotificationsInput = {
+export type AttemptLogUpsertWithWhereUniqueWithoutNotificationInput = {
   where: Prisma.AttemptLogWhereUniqueInput
-  update: Prisma.XOR<Prisma.AttemptLogUpdateWithoutNotificationsInput, Prisma.AttemptLogUncheckedUpdateWithoutNotificationsInput>
-  create: Prisma.XOR<Prisma.AttemptLogCreateWithoutNotificationsInput, Prisma.AttemptLogUncheckedCreateWithoutNotificationsInput>
+  update: Prisma.XOR<Prisma.AttemptLogUpdateWithoutNotificationInput, Prisma.AttemptLogUncheckedUpdateWithoutNotificationInput>
+  create: Prisma.XOR<Prisma.AttemptLogCreateWithoutNotificationInput, Prisma.AttemptLogUncheckedCreateWithoutNotificationInput>
 }
 
-export type AttemptLogUpdateWithWhereUniqueWithoutNotificationsInput = {
+export type AttemptLogUpdateWithWhereUniqueWithoutNotificationInput = {
   where: Prisma.AttemptLogWhereUniqueInput
-  data: Prisma.XOR<Prisma.AttemptLogUpdateWithoutNotificationsInput, Prisma.AttemptLogUncheckedUpdateWithoutNotificationsInput>
+  data: Prisma.XOR<Prisma.AttemptLogUpdateWithoutNotificationInput, Prisma.AttemptLogUncheckedUpdateWithoutNotificationInput>
 }
 
-export type AttemptLogUpdateManyWithWhereWithoutNotificationsInput = {
+export type AttemptLogUpdateManyWithWhereWithoutNotificationInput = {
   where: Prisma.AttemptLogScalarWhereInput
-  data: Prisma.XOR<Prisma.AttemptLogUpdateManyMutationInput, Prisma.AttemptLogUncheckedUpdateManyWithoutNotificationsInput>
+  data: Prisma.XOR<Prisma.AttemptLogUpdateManyMutationInput, Prisma.AttemptLogUncheckedUpdateManyWithoutNotificationInput>
 }
 
 export type AttemptLogScalarWhereInput = {
@@ -638,8 +626,8 @@ export type AttemptLogScalarWhereInput = {
   durationMs?: Prisma.IntNullableFilter<"AttemptLog"> | number | null
 }
 
-export type AttemptLogCreateManyNotificationsInput = {
-  id: string
+export type AttemptLogCreateManyNotificationInput = {
+  id?: string
   attemptNumber: number
   attemptedAt?: Date | string
   workerId: string
@@ -651,7 +639,7 @@ export type AttemptLogCreateManyNotificationsInput = {
   durationMs?: number | null
 }
 
-export type AttemptLogUpdateWithoutNotificationsInput = {
+export type AttemptLogUpdateWithoutNotificationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
   attemptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -664,7 +652,7 @@ export type AttemptLogUpdateWithoutNotificationsInput = {
   durationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type AttemptLogUncheckedUpdateWithoutNotificationsInput = {
+export type AttemptLogUncheckedUpdateWithoutNotificationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
   attemptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -677,7 +665,7 @@ export type AttemptLogUncheckedUpdateWithoutNotificationsInput = {
   durationMs?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type AttemptLogUncheckedUpdateManyWithoutNotificationsInput = {
+export type AttemptLogUncheckedUpdateManyWithoutNotificationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   attemptNumber?: Prisma.IntFieldUpdateOperationsInput | number
   attemptedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -704,7 +692,7 @@ export type AttemptLogSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   errorCode?: boolean
   errorMessage?: boolean
   durationMs?: boolean
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["attemptLog"]>
 
 export type AttemptLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -719,7 +707,7 @@ export type AttemptLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   errorCode?: boolean
   errorMessage?: boolean
   durationMs?: boolean
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["attemptLog"]>
 
 export type AttemptLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -734,7 +722,7 @@ export type AttemptLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   errorCode?: boolean
   errorMessage?: boolean
   durationMs?: boolean
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["attemptLog"]>
 
 export type AttemptLogSelectScalar = {
@@ -753,19 +741,19 @@ export type AttemptLogSelectScalar = {
 
 export type AttemptLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "notificationId" | "attemptNumber" | "attemptedAt" | "workerId" | "provider" | "success" | "providerMessageId" | "errorCode" | "errorMessage" | "durationMs", ExtArgs["result"]["attemptLog"]>
 export type AttemptLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }
 export type AttemptLogIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }
 export type AttemptLogIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  Notifications?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
+  notification?: boolean | Prisma.NotificationsDefaultArgs<ExtArgs>
 }
 
 export type $AttemptLogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AttemptLog"
   objects: {
-    Notifications: Prisma.$NotificationsPayload<ExtArgs>
+    notification: Prisma.$NotificationsPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1173,7 +1161,7 @@ readonly fields: AttemptLogFieldRefs;
  */
 export interface Prisma__AttemptLogClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  Notifications<T extends Prisma.NotificationsDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NotificationsDefaultArgs<ExtArgs>>): Prisma.Prisma__NotificationsClient<runtime.Types.Result.GetResult<Prisma.$NotificationsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  notification<T extends Prisma.NotificationsDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.NotificationsDefaultArgs<ExtArgs>>): Prisma.Prisma__NotificationsClient<runtime.Types.Result.GetResult<Prisma.$NotificationsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

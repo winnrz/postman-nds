@@ -9,15 +9,6 @@
 * 🟢 You can import this file directly.
 */
 
-export const NotificationChannel = {
-  EMAIL: 'EMAIL',
-  SMS: 'SMS',
-  IN_APP: 'IN_APP'
-} as const
-
-export type NotificationChannel = (typeof NotificationChannel)[keyof typeof NotificationChannel]
-
-
 export const NotificationPriority = {
   LOW: 'LOW',
   MEDIUM: 'MEDIUM',
@@ -25,6 +16,17 @@ export const NotificationPriority = {
 } as const
 
 export type NotificationPriority = (typeof NotificationPriority)[keyof typeof NotificationPriority]
+
+
+export const NotificationStatus = {
+  SCHEDULED: 'SCHEDULED',
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  DELIVERED: 'DELIVERED',
+  FAILED: 'FAILED'
+} as const
+
+export type NotificationStatus = (typeof NotificationStatus)[keyof typeof NotificationStatus]
 
 
 export const NotificationProvider = {
@@ -37,12 +39,10 @@ export const NotificationProvider = {
 export type NotificationProvider = (typeof NotificationProvider)[keyof typeof NotificationProvider]
 
 
-export const NotificationStatus = {
-  SCHEDULED: 'SCHEDULED',
-  PENDING: 'PENDING',
-  PROCESSING: 'PROCESSING',
-  DELIVERED: 'DELIVERED',
-  FAILED: 'FAILED'
+export const NotificationChannel = {
+  EMAIL: 'EMAIL',
+  SMS: 'SMS',
+  IN_APP: 'IN_APP'
 } as const
 
-export type NotificationStatus = (typeof NotificationStatus)[keyof typeof NotificationStatus]
+export type NotificationChannel = (typeof NotificationChannel)[keyof typeof NotificationChannel]

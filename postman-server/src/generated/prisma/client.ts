@@ -29,8 +29,8 @@ export * from "./enums.js"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more ApiKeys
- * const apiKeys = await prisma.apiKeys.findMany()
+ * // Fetch zero or more Notifications
+ * const notifications = await prisma.notifications.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -40,10 +40,15 @@ export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts exten
 export { Prisma }
 
 /**
- * Model ApiKeys
+ * Model Notifications
  * 
  */
-export type ApiKeys = Prisma.ApiKeysModel
+export type Notifications = Prisma.NotificationsModel
+/**
+ * Model NotificationQueue
+ * 
+ */
+export type NotificationQueue = Prisma.NotificationQueueModel
 /**
  * Model AttemptLog
  * 
@@ -60,17 +65,12 @@ export type DeadLetterQueue = Prisma.DeadLetterQueueModel
  */
 export type InAppNotifications = Prisma.InAppNotificationsModel
 /**
- * Model NotificationQueue
- * 
- */
-export type NotificationQueue = Prisma.NotificationQueueModel
-/**
- * Model Notifications
- * 
- */
-export type Notifications = Prisma.NotificationsModel
-/**
  * Model Templates
  * 
  */
 export type Templates = Prisma.TemplatesModel
+/**
+ * Model ApiKeys
+ * 
+ */
+export type ApiKeys = Prisma.ApiKeysModel

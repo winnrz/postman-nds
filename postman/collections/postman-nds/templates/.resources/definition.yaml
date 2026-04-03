@@ -1,0 +1,12 @@
+$kind: collection
+name: Templates
+description: |-
+  CRUD operations for notification templates.
+
+  A template defines the channel, subject (EMAIL only), and body content
+  used when dispatching notifications. Templates are uniquely identified
+  by the composite key (key, version).
+
+  Required fields: key, name, channel, bodyTemplate
+  Optional fields: version (default 1), subjectTemplate (EMAIL only), isActive (default true)
+order: 2000
