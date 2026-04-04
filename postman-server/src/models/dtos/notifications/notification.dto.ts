@@ -16,3 +16,13 @@ export interface CreateNotificationDto {
 export interface CreateNotificationsBatchDto {
   notifications: CreateNotificationDto[];
 }
+
+/** Query string for `GET /notifications` (values are strings as sent over HTTP). */
+export interface ListNotificationsQuery {
+  page?: string;
+  pageSize?: string;
+  recipientId?: string;
+  status?: string;
+  channel?: string;
+  priority?: string;
+}
