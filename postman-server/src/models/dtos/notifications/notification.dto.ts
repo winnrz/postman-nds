@@ -12,6 +12,7 @@ export interface CreateNotificationDto {
   subject?: string;
   body?: string;
   metadata?: NotificationMetadata;
+  /** Dedupes creates; must match the unique `idempotencyKey` column on `Notifications`. */
   idempotencyKey: string;
   maxAttempts?: number;
   scheduledAt?: string | Date;

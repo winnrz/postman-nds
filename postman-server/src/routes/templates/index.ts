@@ -4,8 +4,7 @@ import { NotificationChannel } from "../../models/enums";
 import { CreateTemplateDto } from "../../models/dtos/templates";
 import { prisma } from "../../plugins/prisma";
 
-
-// Schemas stay the same
+// Fastify JSON Schema: validates bodies, shapes serialized responses, and can feed OpenAPI.
 const createTemplateSchema = {
   body: {
     type: "object",
@@ -14,6 +13,7 @@ const createTemplateSchema = {
       key: { type: "string", minLength: 1, maxLength: 128 },
       name: { type: "string", minLength: 1, maxLength: 255 },
       version: { type: "integer", minimum: 1 },
+      // Same values as Prisma `NotificationChannel` so the HTTP API and DB stay aligned.
       channel: { type: "string", enum: Object.values(NotificationChannel) },
       subjectTemplate: { type: "string" },
       bodyTemplate: { type: "string", minLength: 1 },
@@ -56,7 +56,6 @@ const listTemplatesSchema = {
 };
 
 const root: FastifyPluginAsync = async (fastify): Promise<void> => {
-  // GET /
   fastify.get("/", { schema: listTemplatesSchema }, async (request, reply) => {
     const templates = await prisma.templates.findMany({
       orderBy: {
@@ -79,7 +78,6 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
     return reply.send(templates);
   });
 
-  // POST /
   fastify.post<{ Body: CreateTemplateDto }>(
     "/",
     { schema: createTemplateSchema },
@@ -94,7 +92,7 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
         isActive = true,
       } = request.body;
 
-      // Validation
+      // Cross-field rule: subject lines only apply to email templates (JSON Schema cannot express this alone).
       if (subjectTemplate && channel !== NotificationChannel.EMAIL) {
         return reply.code(422).send({
           error: "Validation failed",
