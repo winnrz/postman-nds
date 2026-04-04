@@ -4,20 +4,16 @@ import { NotificationChannel } from "../../models/enums";
 import { CreateTemplateDto } from "../../models/dtos/templates";
 import { prisma } from "../../plugins/prisma";
 
-// Fastify JSON Schema: validates bodies, shapes serialized responses, and can feed OpenAPI.
+// Fastify JSON Schema: validates bodies, shapes serialized responses.
 const createTemplateSchema = {
   body: {
     type: "object",
-    required: ["key", "name", "channel", "bodyTemplate"],
+    required: ["name", "channel", "bodyTemplate"],
     properties: {
-      key: { type: "string", minLength: 1, maxLength: 128 },
       name: { type: "string", minLength: 1, maxLength: 255 },
-      version: { type: "integer", minimum: 1 },
-      // Same values as Prisma `NotificationChannel` so the HTTP API and DB stay aligned.
       channel: { type: "string", enum: Object.values(NotificationChannel) },
       subjectTemplate: { type: "string" },
       bodyTemplate: { type: "string", minLength: 1 },
-      isActive: { type: "boolean" },
     },
     additionalProperties: false,
   },
@@ -83,16 +79,13 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
     { schema: createTemplateSchema },
     async (request, reply) => {
       const {
-        key,
         name,
         channel,
         subjectTemplate = null,
         bodyTemplate,
-        version = 1,
-        isActive = true,
       } = request.body;
 
-      // Cross-field rule: subject lines only apply to email templates (JSON Schema cannot express this alone).
+      // Cross-field rule: subject lines only apply to email templates.
       if (subjectTemplate && channel !== NotificationChannel.EMAIL) {
         return reply.code(422).send({
           error: "Validation failed",
@@ -103,13 +96,11 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
 
       const template = await prisma.templates.create({
         data: {
-          key,
+          key: `${name}-${channel}`.toLowerCase().replace(/\s+/g, "-"),
           name,
           channel,
           subjectTemplate,
           bodyTemplate,
-          version,
-          isActive,
         },
         select: {
           id: true,
