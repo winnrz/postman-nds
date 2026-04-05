@@ -1,0 +1,5 @@
+$kind: collection
+name: Routes
+description: |-
+  Grouping folder for route-based endpoints.
+order: 2000000000000000

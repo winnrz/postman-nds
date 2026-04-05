@@ -1,0 +1,5 @@
+$kind: collection
+name: Notifications
+description: |-
+  CRUD endpoints for /notifications.
+order: 2347810532620407

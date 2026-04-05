@@ -1,0 +1,31 @@
+$kind: http-request
+name: 'List Notifications'
+method: GET
+url: '{{baseUrl}}/notifications'
+order: 1000
+headers:
+  - key: Accept
+    value: application/json
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('status is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('response is JSON (when body is present)', function () {
+        // Some APIs may return empty body; keep generic.
+        if (pm.response.text()) {
+          pm.response.to.be.json;
+        }
+      });
+
+      pm.test('body is an array (or has an items array)', function () {
+        if (!pm.response.text()) return;
+
+        const json = pm.response.json();
+        const isArray = Array.isArray(json);
+        const hasItemsArray = json && Array.isArray(json.items);
+        pm.expect(isArray || hasItemsArray).to.eql(true);
+      });

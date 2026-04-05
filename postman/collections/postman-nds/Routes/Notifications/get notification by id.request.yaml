@@ -1,0 +1,29 @@
+$kind: http-request
+name: 'Get Notification by ID'
+method: GET
+url: '{{baseUrl}}/notifications/{{notificationId}}'
+order: 2000
+headers:
+  - key: Accept
+    value: application/json
+
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('status is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('response is JSON', function () {
+        pm.response.to.be.json;
+      });
+
+      pm.test('body is an object with an id field (if present)', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.be.an('object');
+
+        if (Object.prototype.hasOwnProperty.call(json, 'id')) {
+          pm.expect(json.id).to.not.eql(undefined);
+        }
+      });

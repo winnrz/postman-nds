@@ -9,4 +9,4 @@ description: |-
 
   Required fields: key, name, channel, bodyTemplate
   Optional fields: version (default 1), subjectTemplate (EMAIL only), isActive (default true)
-order: 2000
+order: 284911766341457

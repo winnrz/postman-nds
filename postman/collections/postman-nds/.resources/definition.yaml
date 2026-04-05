@@ -18,3 +18,6 @@ variables:
   - key: templateId
     value: ''
     description: 'Populated automatically by the Create Template request test script.'
+  - key: notificationId
+    value: ''
+    description: 'Optional: populated from Create Notification response when id is returned.'

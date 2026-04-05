@@ -1,0 +1,50 @@
+$kind: http-request
+name: 'Create Notification'
+method: POST
+url: '{{baseUrl}}/notifications'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "channel": "EMAIL",
+      "recipient": "user@example.com",
+      "templateId": "{{templateId}}",
+      "variables": {
+        "name": "Jane"
+      },
+      "priority": "MEDIUM"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('status is 201 or 200', function () {
+        pm.expect([200, 201]).to.include(pm.response.code);
+      });
+
+      pm.test('response is JSON', function () {
+        if (pm.response.text()) {
+          pm.response.to.be.json;
+        }
+      });
+
+      pm.test('body is an object', function () {
+        if (!pm.response.text()) return;
+        pm.expect(pm.response.json()).to.be.an('object');
+      });
+
+      // If API returns created id, store it for follow-up requests.
+      pm.test('capture id if present', function () {
+        if (!pm.response.text()) return;
+        const json = pm.response.json();
+        const id = json?.id || json?.data?.id;
+        if (id !== undefined && id !== null) {
+          pm.collectionVariables.set('notificationId', String(id));
+        }
+      });
