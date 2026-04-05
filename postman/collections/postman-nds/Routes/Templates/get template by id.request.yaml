@@ -1,0 +1,63 @@
+$kind: http-request
+name: 'Get Template by ID'
+method: GET
+url: '{{baseUrl}}/templates/{{templateId}}'
+order: 3000
+headers:
+  - key: Accept
+    value: application/json
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      const ISO_8601_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+
+      function expectIsoDateString(value, fieldName) {
+        pm.expect(value, fieldName).to.be.a('string');
+        pm.expect(value, fieldName).to.match(ISO_8601_REGEX);
+      }
+
+      pm.test('status is 200 or 404', function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 404]);
+      });
+
+      pm.test('response is JSON', function () {
+        pm.response.to.be.json;
+      });
+
+      if (pm.response.code === 404) {
+        pm.test('404 response has error string', function () {
+          const json = pm.response.json();
+          pm.expect(json).to.be.an('object');
+          pm.expect(json).to.have.property('error');
+          pm.expect(json.error).to.be.a('string');
+        });
+      }
+
+      if (pm.response.code === 200) {
+        pm.test('200 response has required fields with correct types', function () {
+          const t = pm.response.json();
+          pm.expect(t).to.be.an('object');
+
+          pm.expect(t).to.have.property('id').that.is.a('string');
+          pm.expect(t).to.have.property('name').that.is.a('string');
+
+          // Avoid brittle enum assertions; just validate string type.
+          pm.expect(t).to.have.property('channel').that.is.a('string');
+
+          // Nullable
+          pm.expect(t).to.have.property('subjectTemplate');
+          if (t.subjectTemplate !== null) {
+            pm.expect(t.subjectTemplate).to.be.a('string');
+          }
+
+          pm.expect(t).to.have.property('bodyTemplate').that.is.a('string');
+          pm.expect(t).to.have.property('version').that.is.a('number');
+          pm.expect(t).to.have.property('isActive').that.is.a('boolean');
+
+          pm.expect(t).to.have.property('createdAt');
+          pm.expect(t).to.have.property('updatedAt');
+          expectIsoDateString(t.createdAt, 'createdAt');
+          expectIsoDateString(t.updatedAt, 'updatedAt');
+        });
+      }

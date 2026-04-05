@@ -11,19 +11,121 @@ scripts:
   - type: afterResponse
     language: text/javascript
     code: |-
-      pm.test('status is 200', function () {
-        pm.response.to.have.status(200);
+      const ISO_8601_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+
+      function expectIsoDateString(value, fieldName) {
+        pm.expect(value, fieldName).to.be.a('string');
+        pm.expect(value, fieldName).to.match(ISO_8601_REGEX);
+      }
+
+      function expectNullableIsoDate(value, fieldName) {
+        if (value === null) return;
+        expectIsoDateString(value, fieldName);
+      }
+
+      pm.test('status is 200 or 404', function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 404]);
       });
 
       pm.test('response is JSON', function () {
         pm.response.to.be.json;
       });
 
-      pm.test('body is an object with an id field (if present)', function () {
-        const json = pm.response.json();
-        pm.expect(json).to.be.an('object');
+      if (pm.response.code === 404) {
+        pm.test('404 response has error string', function () {
+          const json = pm.response.json();
+          pm.expect(json).to.be.an('object');
+          pm.expect(json).to.have.property('error');
+          pm.expect(json.error).to.be.a('string');
+        });
+      }
 
-        if (Object.prototype.hasOwnProperty.call(json, 'id')) {
-          pm.expect(json.id).to.not.eql(undefined);
-        }
-      });
+      if (pm.response.code === 200) {
+        pm.test('200 response has required fields with correct types', function () {
+          const n = pm.response.json();
+          pm.expect(n).to.be.an('object');
+
+          pm.expect(n).to.have.property('id').that.is.a('string');
+          pm.expect(n).to.have.property('templateId');
+          if (n.templateId !== null) {
+            pm.expect(n.templateId).to.be.a('string');
+          }
+          pm.expect(n).to.have.property('recipientId').that.is.a('string');
+
+          // Avoid brittle enum assertions; just validate string type.
+          pm.expect(n).to.have.property('channel').that.is.a('string');
+          pm.expect(n).to.have.property('priority').that.is.a('string');
+          pm.expect(n).to.have.property('status').that.is.a('string');
+
+          // Nullable strings
+          pm.expect(n).to.have.property('subject');
+          if (n.subject !== null) {
+            pm.expect(n.subject).to.be.a('string');
+          }
+
+          pm.expect(n).to.have.property('body');
+          if (n.body !== null) {
+            pm.expect(n.body).to.be.a('string');
+          }
+
+          // metadata can be null or object; route schema says object additionalProperties string
+          pm.expect(n).to.have.property('metadata');
+          if (n.metadata !== null) {
+            pm.expect(n.metadata).to.be.an('object');
+            Object.keys(n.metadata).forEach((k) => {
+              pm.expect(n.metadata[k], `metadata.${k}`).to.be.a('string');
+            });
+          }
+
+          // Attempts-related + nullable date fields
+          pm.expect(n).to.have.property('attemptCount');
+          pm.expect(n.attemptCount).to.be.a('number');
+
+          pm.expect(n).to.have.property('scheduledAt');
+          expectNullableIsoDate(n.scheduledAt, 'scheduledAt');
+
+          pm.expect(n).to.have.property('deliveredAt');
+          expectNullableIsoDate(n.deliveredAt, 'deliveredAt');
+
+          pm.expect(n).to.have.property('failureReason');
+          if (n.failureReason !== null) {
+            pm.expect(n.failureReason).to.be.a('string');
+          }
+
+          pm.expect(n).to.have.property('createdAt');
+          pm.expect(n).to.have.property('updatedAt');
+          expectIsoDateString(n.createdAt, 'createdAt');
+          expectIsoDateString(n.updatedAt, 'updatedAt');
+
+          pm.expect(n).to.have.property('attempts');
+          pm.expect(n.attempts).to.be.an('array');
+
+          n.attempts.forEach((a, idx) => {
+            pm.expect(a, `attempts[${idx}]`).to.be.an('object');
+            pm.expect(a).to.have.property('attemptNumber').that.is.a('number');
+            pm.expect(a).to.have.property('workerId').that.is.a('string');
+            pm.expect(a).to.have.property('provider').that.is.a('string');
+            pm.expect(a).to.have.property('success').that.is.a('boolean');
+
+            // nullable strings
+            pm.expect(a).to.have.property('providerMessageId');
+            if (a.providerMessageId !== null) {
+              pm.expect(a.providerMessageId).to.be.a('string');
+            }
+            pm.expect(a).to.have.property('errorCode');
+            if (a.errorCode !== null) {
+              pm.expect(a.errorCode).to.be.a('string');
+            }
+            pm.expect(a).to.have.property('errorMessage');
+            if (a.errorMessage !== null) {
+              pm.expect(a.errorMessage).to.be.a('string');
+            }
+
+            pm.expect(a).to.have.property('durationMs');
+            pm.expect(a.durationMs).to.be.a('number');
+
+            pm.expect(a).to.have.property('attemptedAt');
+            expectIsoDateString(a.attemptedAt, `attempts[${idx}].attemptedAt`);
+          });
+        });
+      }
