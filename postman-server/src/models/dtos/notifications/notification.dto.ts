@@ -11,6 +11,7 @@ export interface CreateNotificationDto {
   subject?: string;
   body?: string;
   metadata?: NotificationMetadata;
+  scheduleAt?: string; // ISO 8601 date string, e.g. "2024-06-30T12:00:00Z"
 }
 
 export interface CreateNotificationsBatchDto {
@@ -25,4 +26,5 @@ export interface ListNotificationsQuery {
   status?: string;
   channel?: string;
   priority?: string;
+  scheduleAt?: string;
 }

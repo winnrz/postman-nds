@@ -7,12 +7,21 @@ import {
   NotificationStatus,
 } from "../../models/enums";
 import { prisma } from "../../plugins/prisma";
-import { CreateNotificationDto, ListNotificationsQuery } from "../../models/dtos/notifications";
+import {
+  CreateNotificationDto,
+  ListNotificationsQuery,
+} from "../../models/dtos/notifications";
+import { createNotification } from "../../services/notifications";
 
 // JSON Schema `enum` arrays must stay in sync with Prisma string enums on `Notifications`.
 const channelValues = Object.values(NotificationChannel);
 const priorityValues = Object.values(NotificationPriority);
 const statusValues = Object.values(NotificationStatus);
+
+const notificationMetadataJsonSchema = {
+  type: "object",
+  additionalProperties: { type: "string" },
+} as const;
 
 /** Request body for `POST /notifications` — matches `CreateNotificationDto`. */
 export const createNotificationBodyJsonSchema = {
@@ -25,6 +34,8 @@ export const createNotificationBodyJsonSchema = {
     priority: { type: "string", enum: priorityValues },
     subject: { type: "string" },
     body: { type: "string" },
+    metadata: notificationMetadataJsonSchema,
+    scheduleAt: { type: "string" },
   },
   additionalProperties: false,
 } as const;
@@ -121,7 +132,7 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
       const page = parsePositiveInt(q.page, 1);
       // Cap page size so list endpoints cannot be abused for huge result sets.
       const pageSize = Math.min(
-        100,
+        50,
         Math.max(1, parsePositiveInt(q.pageSize, 20)),
       );
       const skip = (page - 1) * pageSize;
@@ -200,25 +211,40 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
         }
       }
 
-      const created = await prisma.notifications.create({
-        data: {
-          templateId: body.templateId ?? null,
-          recipientId: body.recipientId,
-          channel: body.channel,
-          priority: body.priority,
-          subject: body.subject ?? null,
-          body: body.body ?? null,
-        },
-        select: {
-          id: true,
-          status: true,
-        },
-      });
+      // Cross-field rule: at least one of `templateId` or `body` must be provided to avoid creating blank notifications.
+      const hasTemplate = Boolean(body.templateId);
+      const hasBody = body.body !== undefined && body.body.trim().length > 0;
+      if (!hasTemplate && !hasBody) {
+        return reply.code(422).send({
+          error: "Validation failed",
+          message:
+            "Either templateId or a non-empty body is required (template-only or ad-hoc content)",
+        });
+      }
 
-      return reply.code(201).send({
-        id: created.id,
-        status: created.status,
-      });
+      let scheduledAtIso = "";
+      let scheduledAt: Date | null = null;
+      if (body.scheduleAt !== undefined && body.scheduleAt !== "") {
+        const parsed = new Date(body.scheduleAt);
+        if (Number.isNaN(parsed.getTime())) {
+          return reply.code(422).send({
+            error: "Validation failed",
+            field: "scheduleAt",
+            message: "scheduleAt must be a valid ISO 8601 date string",
+          });
+        }
+        scheduledAtIso = parsed.toISOString();
+        scheduledAt = parsed;
+      }
+
+      const result = await createNotification(
+        body,
+        scheduledAt,
+        scheduledAtIso,
+      );
+      return reply
+        .code(result.created ? 201 : 200)
+        .send({ id: result.id, status: result.status });
     },
   );
 };

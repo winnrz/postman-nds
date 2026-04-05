@@ -3,6 +3,7 @@ import { NotificationChannel } from "../../models/enums";
 
 import { CreateTemplateDto } from "../../models/dtos/templates";
 import { prisma } from "../../plugins/prisma";
+import { isUniqueConstraintError } from "../../lib";
 
 // Fastify JSON Schema: validates bodies, shapes serialized responses.
 const createTemplateSchema = {
@@ -36,7 +37,6 @@ const listTemplatesSchema = {
         type: "object",
         properties: {
           id: { type: "string" },
-          key: { type: "string" },
           name: { type: "string" },
           channel: { type: "string" },
           subjectTemplate: { type: ["string", "null"] },
@@ -57,9 +57,9 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
       orderBy: {
         createdAt: "asc",
       },
+      where: { isActive: true },
       select: {
         id: true,
-        key: true,
         name: true,
         channel: true,
         subjectTemplate: true,
@@ -71,7 +71,13 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
       },
     });
 
-    return reply.send(templates);
+    return reply.send(
+      templates.map((t) => ({
+        ...t,
+        createdAt: t.createdAt.toISOString(),
+        updatedAt: t.updatedAt.toISOString(),
+      })),
+    );
   });
 
   fastify.post<{ Body: CreateTemplateDto }>(
@@ -94,23 +100,28 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
         });
       }
 
-      const template = await prisma.templates.create({
-        data: {
-          key: `${name}-${channel}`.toLowerCase().replace(/\s+/g, "-"),
-          name,
-          channel,
-          subjectTemplate,
-          bodyTemplate,
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      return reply.code(201).send({
-        id: template.id,
-        status: "CREATED",
-      });
+      try {
+        const template = await prisma.templates.create({
+          data: {
+            name,
+            channel,
+            subjectTemplate,
+            bodyTemplate,
+          },
+          select: {
+            id: true,
+          },
+        });
+        return reply.code(201).send({ id: template.id });
+      } catch (err) {
+        if (isUniqueConstraintError(err)) {
+          return reply.code(422).send({
+            error: "Validation failed",
+            message: `A ${channel} template named "${name}" already exists`,
+          });
+        }
+        throw err;
+      }
     },
   );
 };

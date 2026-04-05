@@ -1053,7 +1053,6 @@ export type InAppNotificationsScalarFieldEnum = (typeof InAppNotificationsScalar
 
 export const TemplatesScalarFieldEnum = {
   id: 'id',
-  key: 'key',
   name: 'name',
   version: 'version',
   channel: 'channel',

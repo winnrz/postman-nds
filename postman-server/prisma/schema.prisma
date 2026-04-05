@@ -47,7 +47,7 @@ model Notifications {
   subject           String?
   body              String?
   metadata          Json?
-  idempotencyKey    String               @default(uuid())
+  idempotencyKey    String               @unique
   attemptCount      Int                  @default(0)
   maxAttempts       Int                  @default(5)
   scheduledAt       DateTime?
@@ -155,8 +155,7 @@ model InAppNotifications {
 
 model Templates {
   id      String @id @default(uuid())
-  key     String 
-  name    String 
+  name    String
   version Int    @default(1)
 
   channel         NotificationChannel
@@ -169,8 +168,8 @@ model Templates {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([key, version]) 
-  @@index([key, isActive]) 
+  @@unique([name, channel])
+  @@index([channel, isActive])
 }
 
 model ApiKeys {

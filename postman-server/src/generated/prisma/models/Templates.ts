@@ -36,7 +36,6 @@ export type TemplatesSumAggregateOutputType = {
 
 export type TemplatesMinAggregateOutputType = {
   id: string | null
-  key: string | null
   name: string | null
   version: number | null
   channel: $Enums.NotificationChannel | null
@@ -49,7 +48,6 @@ export type TemplatesMinAggregateOutputType = {
 
 export type TemplatesMaxAggregateOutputType = {
   id: string | null
-  key: string | null
   name: string | null
   version: number | null
   channel: $Enums.NotificationChannel | null
@@ -62,7 +60,6 @@ export type TemplatesMaxAggregateOutputType = {
 
 export type TemplatesCountAggregateOutputType = {
   id: number
-  key: number
   name: number
   version: number
   channel: number
@@ -85,7 +82,6 @@ export type TemplatesSumAggregateInputType = {
 
 export type TemplatesMinAggregateInputType = {
   id?: true
-  key?: true
   name?: true
   version?: true
   channel?: true
@@ -98,7 +94,6 @@ export type TemplatesMinAggregateInputType = {
 
 export type TemplatesMaxAggregateInputType = {
   id?: true
-  key?: true
   name?: true
   version?: true
   channel?: true
@@ -111,7 +106,6 @@ export type TemplatesMaxAggregateInputType = {
 
 export type TemplatesCountAggregateInputType = {
   id?: true
-  key?: true
   name?: true
   version?: true
   channel?: true
@@ -211,7 +205,6 @@ export type TemplatesGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 
 export type TemplatesGroupByOutputType = {
   id: string
-  key: string
   name: string
   version: number
   channel: $Enums.NotificationChannel
@@ -247,7 +240,6 @@ export type TemplatesWhereInput = {
   OR?: Prisma.TemplatesWhereInput[]
   NOT?: Prisma.TemplatesWhereInput | Prisma.TemplatesWhereInput[]
   id?: Prisma.StringFilter<"Templates"> | string
-  key?: Prisma.StringFilter<"Templates"> | string
   name?: Prisma.StringFilter<"Templates"> | string
   version?: Prisma.IntFilter<"Templates"> | number
   channel?: Prisma.EnumNotificationChannelFilter<"Templates"> | $Enums.NotificationChannel
@@ -261,7 +253,6 @@ export type TemplatesWhereInput = {
 
 export type TemplatesOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   version?: Prisma.SortOrder
   channel?: Prisma.SortOrder
@@ -275,11 +266,10 @@ export type TemplatesOrderByWithRelationInput = {
 
 export type TemplatesWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  key_version?: Prisma.TemplatesKeyVersionCompoundUniqueInput
+  name_channel?: Prisma.TemplatesNameChannelCompoundUniqueInput
   AND?: Prisma.TemplatesWhereInput | Prisma.TemplatesWhereInput[]
   OR?: Prisma.TemplatesWhereInput[]
   NOT?: Prisma.TemplatesWhereInput | Prisma.TemplatesWhereInput[]
-  key?: Prisma.StringFilter<"Templates"> | string
   name?: Prisma.StringFilter<"Templates"> | string
   version?: Prisma.IntFilter<"Templates"> | number
   channel?: Prisma.EnumNotificationChannelFilter<"Templates"> | $Enums.NotificationChannel
@@ -289,11 +279,10 @@ export type TemplatesWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Templates"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Templates"> | Date | string
   notifications?: Prisma.NotificationsListRelationFilter
-}, "id" | "key_version">
+}, "id" | "name_channel">
 
 export type TemplatesOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   version?: Prisma.SortOrder
   channel?: Prisma.SortOrder
@@ -314,7 +303,6 @@ export type TemplatesScalarWhereWithAggregatesInput = {
   OR?: Prisma.TemplatesScalarWhereWithAggregatesInput[]
   NOT?: Prisma.TemplatesScalarWhereWithAggregatesInput | Prisma.TemplatesScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Templates"> | string
-  key?: Prisma.StringWithAggregatesFilter<"Templates"> | string
   name?: Prisma.StringWithAggregatesFilter<"Templates"> | string
   version?: Prisma.IntWithAggregatesFilter<"Templates"> | number
   channel?: Prisma.EnumNotificationChannelWithAggregatesFilter<"Templates"> | $Enums.NotificationChannel
@@ -327,7 +315,6 @@ export type TemplatesScalarWhereWithAggregatesInput = {
 
 export type TemplatesCreateInput = {
   id?: string
-  key: string
   name: string
   version?: number
   channel: $Enums.NotificationChannel
@@ -341,7 +328,6 @@ export type TemplatesCreateInput = {
 
 export type TemplatesUncheckedCreateInput = {
   id?: string
-  key: string
   name: string
   version?: number
   channel: $Enums.NotificationChannel
@@ -355,7 +341,6 @@ export type TemplatesUncheckedCreateInput = {
 
 export type TemplatesUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   channel?: Prisma.EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
@@ -369,7 +354,6 @@ export type TemplatesUpdateInput = {
 
 export type TemplatesUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   channel?: Prisma.EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
@@ -383,7 +367,6 @@ export type TemplatesUncheckedUpdateInput = {
 
 export type TemplatesCreateManyInput = {
   id?: string
-  key: string
   name: string
   version?: number
   channel: $Enums.NotificationChannel
@@ -396,7 +379,6 @@ export type TemplatesCreateManyInput = {
 
 export type TemplatesUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   channel?: Prisma.EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
@@ -409,7 +391,6 @@ export type TemplatesUpdateManyMutationInput = {
 
 export type TemplatesUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   channel?: Prisma.EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
@@ -425,14 +406,13 @@ export type TemplatesNullableScalarRelationFilter = {
   isNot?: Prisma.TemplatesWhereInput | null
 }
 
-export type TemplatesKeyVersionCompoundUniqueInput = {
-  key: string
-  version: number
+export type TemplatesNameChannelCompoundUniqueInput = {
+  name: string
+  channel: $Enums.NotificationChannel
 }
 
 export type TemplatesCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   version?: Prisma.SortOrder
   channel?: Prisma.SortOrder
@@ -449,7 +429,6 @@ export type TemplatesAvgOrderByAggregateInput = {
 
 export type TemplatesMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   version?: Prisma.SortOrder
   channel?: Prisma.SortOrder
@@ -462,7 +441,6 @@ export type TemplatesMaxOrderByAggregateInput = {
 
 export type TemplatesMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  key?: Prisma.SortOrder
   name?: Prisma.SortOrder
   version?: Prisma.SortOrder
   channel?: Prisma.SortOrder
@@ -495,7 +473,6 @@ export type TemplatesUpdateOneWithoutNotificationsNestedInput = {
 
 export type TemplatesCreateWithoutNotificationsInput = {
   id?: string
-  key: string
   name: string
   version?: number
   channel: $Enums.NotificationChannel
@@ -508,7 +485,6 @@ export type TemplatesCreateWithoutNotificationsInput = {
 
 export type TemplatesUncheckedCreateWithoutNotificationsInput = {
   id?: string
-  key: string
   name: string
   version?: number
   channel: $Enums.NotificationChannel
@@ -537,7 +513,6 @@ export type TemplatesUpdateToOneWithWhereWithoutNotificationsInput = {
 
 export type TemplatesUpdateWithoutNotificationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   channel?: Prisma.EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
@@ -550,7 +525,6 @@ export type TemplatesUpdateWithoutNotificationsInput = {
 
 export type TemplatesUncheckedUpdateWithoutNotificationsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   channel?: Prisma.EnumNotificationChannelFieldUpdateOperationsInput | $Enums.NotificationChannel
@@ -594,7 +568,6 @@ export type TemplatesCountOutputTypeCountNotificationsArgs<ExtArgs extends runti
 
 export type TemplatesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  key?: boolean
   name?: boolean
   version?: boolean
   channel?: boolean
@@ -609,7 +582,6 @@ export type TemplatesSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
 
 export type TemplatesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  key?: boolean
   name?: boolean
   version?: boolean
   channel?: boolean
@@ -622,7 +594,6 @@ export type TemplatesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
 
 export type TemplatesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  key?: boolean
   name?: boolean
   version?: boolean
   channel?: boolean
@@ -635,7 +606,6 @@ export type TemplatesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 
 export type TemplatesSelectScalar = {
   id?: boolean
-  key?: boolean
   name?: boolean
   version?: boolean
   channel?: boolean
@@ -646,7 +616,7 @@ export type TemplatesSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TemplatesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "name" | "version" | "channel" | "subjectTemplate" | "bodyTemplate" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["templates"]>
+export type TemplatesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "version" | "channel" | "subjectTemplate" | "bodyTemplate" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["templates"]>
 export type TemplatesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   notifications?: boolean | Prisma.Templates$notificationsArgs<ExtArgs>
   _count?: boolean | Prisma.TemplatesCountOutputTypeDefaultArgs<ExtArgs>
@@ -661,7 +631,6 @@ export type $TemplatesPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    key: string
     name: string
     version: number
     channel: $Enums.NotificationChannel
@@ -1095,7 +1064,6 @@ export interface Prisma__TemplatesClient<T, Null = never, ExtArgs extends runtim
  */
 export interface TemplatesFieldRefs {
   readonly id: Prisma.FieldRef<"Templates", 'String'>
-  readonly key: Prisma.FieldRef<"Templates", 'String'>
   readonly name: Prisma.FieldRef<"Templates", 'String'>
   readonly version: Prisma.FieldRef<"Templates", 'Int'>
   readonly channel: Prisma.FieldRef<"Templates", 'NotificationChannel'>

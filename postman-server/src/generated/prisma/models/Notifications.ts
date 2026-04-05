@@ -364,6 +364,7 @@ export type NotificationsOrderByWithRelationInput = {
 
 export type NotificationsWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  idempotencyKey?: string
   AND?: Prisma.NotificationsWhereInput | Prisma.NotificationsWhereInput[]
   OR?: Prisma.NotificationsWhereInput[]
   NOT?: Prisma.NotificationsWhereInput | Prisma.NotificationsWhereInput[]
@@ -375,7 +376,6 @@ export type NotificationsWhereUniqueInput = Prisma.AtLeast<{
   subject?: Prisma.StringNullableFilter<"Notifications"> | string | null
   body?: Prisma.StringNullableFilter<"Notifications"> | string | null
   metadata?: Prisma.JsonNullableFilter<"Notifications">
-  idempotencyKey?: Prisma.StringFilter<"Notifications"> | string
   attemptCount?: Prisma.IntFilter<"Notifications"> | number
   maxAttempts?: Prisma.IntFilter<"Notifications"> | number
   scheduledAt?: Prisma.DateTimeNullableFilter<"Notifications"> | Date | string | null
@@ -390,7 +390,7 @@ export type NotificationsWhereUniqueInput = Prisma.AtLeast<{
   attemptLogs?: Prisma.AttemptLogListRelationFilter
   inApp?: Prisma.XOR<Prisma.InAppNotificationsNullableScalarRelationFilter, Prisma.InAppNotificationsWhereInput> | null
   queueEntry?: Prisma.XOR<Prisma.NotificationQueueNullableScalarRelationFilter, Prisma.NotificationQueueWhereInput> | null
-}, "id">
+}, "id" | "idempotencyKey">
 
 export type NotificationsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -453,7 +453,7 @@ export type NotificationsCreateInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -480,7 +480,7 @@ export type NotificationsUncheckedCreateInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -558,7 +558,7 @@ export type NotificationsCreateManyInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -845,7 +845,7 @@ export type NotificationsCreateWithoutQueueEntryInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -871,7 +871,7 @@ export type NotificationsUncheckedCreateWithoutQueueEntryInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -961,7 +961,7 @@ export type NotificationsCreateWithoutAttemptLogsInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -987,7 +987,7 @@ export type NotificationsUncheckedCreateWithoutAttemptLogsInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -1077,7 +1077,7 @@ export type NotificationsCreateWithoutDeadLetterEntriesInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -1103,7 +1103,7 @@ export type NotificationsUncheckedCreateWithoutDeadLetterEntriesInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -1193,7 +1193,7 @@ export type NotificationsCreateWithoutInAppInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -1219,7 +1219,7 @@ export type NotificationsUncheckedCreateWithoutInAppInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -1309,7 +1309,7 @@ export type NotificationsCreateWithoutTemplateInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -1334,7 +1334,7 @@ export type NotificationsUncheckedCreateWithoutTemplateInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
@@ -1410,7 +1410,7 @@ export type NotificationsCreateManyTemplateInput = {
   subject?: string | null
   body?: string | null
   metadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  idempotencyKey?: string
+  idempotencyKey: string
   attemptCount?: number
   maxAttempts?: number
   scheduledAt?: Date | string | null
