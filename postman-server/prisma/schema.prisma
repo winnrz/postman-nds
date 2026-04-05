@@ -27,13 +27,11 @@ enum NotificationProvider {
   SENDGRID
   MAILGUN
   TWILIO
-  IN_APP
 }
 
 enum NotificationChannel {
   EMAIL
   SMS
-  IN_APP
 }
 
 model Notifications {
@@ -59,7 +57,6 @@ model Notifications {
   template          Templates?          @relation(fields: [templateId], references: [id], onDelete: SetNull)
   deadLetterEntries DeadLetterQueue[]
   attemptLogs       AttemptLog[]
-  inApp             InAppNotifications?
   queueEntry        NotificationQueue?
 
   createdAt DateTime @default(now())
@@ -131,26 +128,6 @@ model DeadLetterQueue {
 
   @@index([notificationId])
   @@index([createdAt])
-}
-
-model InAppNotifications {
-  id String @id @default(uuid())
-
-  notificationId String @unique
-  recipientId    String
-
-  subject String?
-  body    String?
-
-  read   Boolean   @default(false)
-  readAt DateTime?
-
-  createdAt DateTime @default(now())
-
-  notification Notifications @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-
-  @@index([recipientId, createdAt])
-  @@index([recipientId, read, createdAt])
 }
 
 model Templates {

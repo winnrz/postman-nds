@@ -1,0 +1,138 @@
+$kind: http-request
+name: 'Create Notifications Batch'
+method: POST
+url: '{{baseUrl}}/notifications/batch'
+order: 3500
+headers:
+  - key: Content-Type
+    value: application/json
+  - key: Accept
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "notifications": []
+    }
+scripts:
+  - type: beforeRequest
+    language: text/javascript
+    code: |-
+      /**
+       * Generates a default, valid batch payload only when the current request body is empty.
+       *
+       * Uses {{recipientId}} and {{templateId}} if present.
+       */
+      (function () {
+        function safeParseJson(text) {
+          try {
+            return { ok: true, value: JSON.parse(text) };
+          } catch (e) {
+            return { ok: false };
+          }
+        }
+
+        const rawBody = pm.request?.body?.raw;
+        const trimmed = (rawBody ?? '').trim();
+
+        // Don't overwrite user-provided body.
+        if (trimmed.length > 0 && trimmed !== '{}' ) {
+          const parsed = safeParseJson(trimmed);
+          // If body is valid JSON and already has a non-empty notifications array, keep it.
+          if (parsed.ok && parsed.value && Array.isArray(parsed.value.notifications) && parsed.value.notifications.length > 0) {
+            return;
+          }
+          // If body is valid JSON and has notifications key (even empty), keep it.
+          if (parsed.ok && parsed.value && Object.prototype.hasOwnProperty.call(parsed.value, 'notifications')) {
+            return;
+          }
+        }
+
+        const recipientId = pm.environment.get('recipientId') || 'recipient-id-placeholder';
+        const templateId = pm.environment.get('templateId') || 'template-id-placeholder';
+
+        const payload = {
+          notifications: [
+            {
+              recipientId,
+              templateId,
+              channel: 'EMAIL',
+              priority: 'MEDIUM',
+              subject: 'Test notification',
+              body: 'Hello from Postman',
+              metadata: {
+                source: 'postman'
+              }
+            }
+          ]
+        };
+
+        pm.request.body.update(JSON.stringify(payload, null, 2));
+      })();
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      /**
+       * Tests aligned to createNotificationsBatchRouteSchema in:
+       * postman-server/src/routes/notifications/index.ts
+       */
+      pm.test('status is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('response is JSON object', function () {
+        pm.response.to.be.json;
+        const json = pm.response.json();
+        pm.expect(json).to.be.an('object');
+      });
+
+      pm.test("body has 'results' array", function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('results');
+        pm.expect(json.results).to.be.an('array');
+      });
+
+      pm.test('each result item matches schema/handler expectations', function () {
+        const json = pm.response.json();
+        pm.expect(json.results).to.be.an('array');
+
+        json.results.forEach((item, i) => {
+          pm.expect(item, `results[${i}] is object`).to.be.an('object');
+
+          // Common required fields
+          pm.expect(item).to.have.property('index');
+          pm.expect(item.index).to.be.a('number');
+          pm.expect(Number.isInteger(item.index), `results[${i}].index is integer`).to.equal(true);
+          pm.expect(item.index, `results[${i}].index >= 0`).to.be.at.least(0);
+
+          pm.expect(item).to.have.property('success');
+          pm.expect(item.success, `results[${i}].success is boolean`).to.be.a('boolean');
+
+          if (item.success === true) {
+            pm.expect(item, `results[${i}] has id`).to.have.property('id');
+            pm.expect(item.id, `results[${i}].id is string`).to.be.a('string').and.not.be.empty;
+
+            pm.expect(item, `results[${i}] has status`).to.have.property('status');
+            pm.expect(item.status, `results[${i}].status is string`).to.be.a('string').and.not.be.empty;
+
+            pm.expect(item, `results[${i}] has created`).to.have.property('created');
+            pm.expect(item.created, `results[${i}].created is boolean`).to.be.a('boolean');
+          } else {
+            // Schema requires at least `error` on failure; handler may also send message/field.
+            pm.expect(item, `results[${i}] has error`).to.have.property('error');
+            pm.expect(item.error, `results[${i}].error is string`).to.be.a('string').and.not.be.empty;
+
+            if (Object.prototype.hasOwnProperty.call(item, 'message')) {
+              pm.expect(item.message, `results[${i}].message is string when present`).to.be.a('string');
+            }
+            if (Object.prototype.hasOwnProperty.call(item, 'field')) {
+              pm.expect(item.field, `results[${i}].field is string when present`).to.be.a('string');
+            }
+
+            // Failure items should not require success-only fields.
+            pm.expect(item).to.not.have.property('id');
+            pm.expect(item).to.not.have.property('status');
+            pm.expect(item).to.not.have.property('created');
+          }
+        });
+      });

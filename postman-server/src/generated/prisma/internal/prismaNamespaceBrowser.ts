@@ -55,7 +55,6 @@ export const ModelName = {
   NotificationQueue: 'NotificationQueue',
   AttemptLog: 'AttemptLog',
   DeadLetterQueue: 'DeadLetterQueue',
-  InAppNotifications: 'InAppNotifications',
   Templates: 'Templates',
   ApiKeys: 'ApiKeys'
 } as const
@@ -144,20 +143,6 @@ export const DeadLetterQueueScalarFieldEnum = {
 } as const
 
 export type DeadLetterQueueScalarFieldEnum = (typeof DeadLetterQueueScalarFieldEnum)[keyof typeof DeadLetterQueueScalarFieldEnum]
-
-
-export const InAppNotificationsScalarFieldEnum = {
-  id: 'id',
-  notificationId: 'notificationId',
-  recipientId: 'recipientId',
-  subject: 'subject',
-  body: 'body',
-  read: 'read',
-  readAt: 'readAt',
-  createdAt: 'createdAt'
-} as const
-
-export type InAppNotificationsScalarFieldEnum = (typeof InAppNotificationsScalarFieldEnum)[keyof typeof InAppNotificationsScalarFieldEnum]
 
 
 export const TemplatesScalarFieldEnum = {

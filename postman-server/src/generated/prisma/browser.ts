@@ -38,11 +38,6 @@ export type AttemptLog = Prisma.AttemptLogModel
  */
 export type DeadLetterQueue = Prisma.DeadLetterQueueModel
 /**
- * Model InAppNotifications
- * 
- */
-export type InAppNotifications = Prisma.InAppNotificationsModel
-/**
  * Model Templates
  * 
  */

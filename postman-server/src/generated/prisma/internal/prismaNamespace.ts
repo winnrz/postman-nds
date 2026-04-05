@@ -388,7 +388,6 @@ export const ModelName = {
   NotificationQueue: 'NotificationQueue',
   AttemptLog: 'AttemptLog',
   DeadLetterQueue: 'DeadLetterQueue',
-  InAppNotifications: 'InAppNotifications',
   Templates: 'Templates',
   ApiKeys: 'ApiKeys'
 } as const
@@ -406,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "notifications" | "notificationQueue" | "attemptLog" | "deadLetterQueue" | "inAppNotifications" | "templates" | "apiKeys"
+    modelProps: "notifications" | "notificationQueue" | "attemptLog" | "deadLetterQueue" | "templates" | "apiKeys"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -706,80 +705,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    InAppNotifications: {
-      payload: Prisma.$InAppNotificationsPayload<ExtArgs>
-      fields: Prisma.InAppNotificationsFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.InAppNotificationsFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InAppNotificationsPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.InAppNotificationsFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InAppNotificationsPayload>
-        }
-        findFirst: {
-          args: Prisma.InAppNotificationsFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InAppNotificationsPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.InAppNotificationsFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InAppNotificationsPayload>
-        }
-        findMany: {
-          args: Prisma.InAppNotificationsFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InAppNotificationsPayload>[]
-        }
-        create: {
-          args: Prisma.InAppNotificationsCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InAppNotificationsPayload>
-        }
-        createMany: {
-          args: Prisma.InAppNotificationsCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.InAppNotificationsCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InAppNotificationsPayload>[]
-        }
-        delete: {
-          args: Prisma.InAppNotificationsDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InAppNotificationsPayload>
-        }
-        update: {
-          args: Prisma.InAppNotificationsUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InAppNotificationsPayload>
-        }
-        deleteMany: {
-          args: Prisma.InAppNotificationsDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.InAppNotificationsUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.InAppNotificationsUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InAppNotificationsPayload>[]
-        }
-        upsert: {
-          args: Prisma.InAppNotificationsUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InAppNotificationsPayload>
-        }
-        aggregate: {
-          args: Prisma.InAppNotificationsAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateInAppNotifications>
-        }
-        groupBy: {
-          args: Prisma.InAppNotificationsGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.InAppNotificationsGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.InAppNotificationsCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.InAppNotificationsCountAggregateOutputType> | number
-        }
-      }
-    }
     Templates: {
       payload: Prisma.$TemplatesPayload<ExtArgs>
       fields: Prisma.TemplatesFieldRefs
@@ -1035,20 +960,6 @@ export const DeadLetterQueueScalarFieldEnum = {
 } as const
 
 export type DeadLetterQueueScalarFieldEnum = (typeof DeadLetterQueueScalarFieldEnum)[keyof typeof DeadLetterQueueScalarFieldEnum]
-
-
-export const InAppNotificationsScalarFieldEnum = {
-  id: 'id',
-  notificationId: 'notificationId',
-  recipientId: 'recipientId',
-  subject: 'subject',
-  body: 'body',
-  read: 'read',
-  readAt: 'readAt',
-  createdAt: 'createdAt'
-} as const
-
-export type InAppNotificationsScalarFieldEnum = (typeof InAppNotificationsScalarFieldEnum)[keyof typeof InAppNotificationsScalarFieldEnum]
 
 
 export const TemplatesScalarFieldEnum = {
@@ -1356,7 +1267,6 @@ export type GlobalOmitConfig = {
   notificationQueue?: Prisma.NotificationQueueOmit
   attemptLog?: Prisma.AttemptLogOmit
   deadLetterQueue?: Prisma.DeadLetterQueueOmit
-  inAppNotifications?: Prisma.InAppNotificationsOmit
   templates?: Prisma.TemplatesOmit
   apiKeys?: Prisma.ApiKeysOmit
 }

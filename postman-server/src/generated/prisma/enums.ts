@@ -32,8 +32,7 @@ export type NotificationStatus = (typeof NotificationStatus)[keyof typeof Notifi
 export const NotificationProvider = {
   SENDGRID: 'SENDGRID',
   MAILGUN: 'MAILGUN',
-  TWILIO: 'TWILIO',
-  IN_APP: 'IN_APP'
+  TWILIO: 'TWILIO'
 } as const
 
 export type NotificationProvider = (typeof NotificationProvider)[keyof typeof NotificationProvider]
@@ -41,8 +40,7 @@ export type NotificationProvider = (typeof NotificationProvider)[keyof typeof No
 
 export const NotificationChannel = {
   EMAIL: 'EMAIL',
-  SMS: 'SMS',
-  IN_APP: 'IN_APP'
+  SMS: 'SMS'
 } as const
 
 export type NotificationChannel = (typeof NotificationChannel)[keyof typeof NotificationChannel]
