@@ -106,6 +106,28 @@ export const listNotificationsRouteSchema = {
   },
 } as const;
 
+const notificationIdParamsJsonSchema = {
+  type: "object",
+  required: ["id"],
+  properties: {
+    id: { type: "string", minLength: 1 },
+  },
+} as const;
+
+/** `GET /notifications/:id` */
+export const getNotificationByIdRouteSchema = {
+  params: notificationIdParamsJsonSchema,
+  response: {
+    200: notificationRowJsonSchema,
+    404: {
+      type: "object",
+      properties: {
+        error: { type: "string" },
+      },
+    },
+  },
+} as const;
+
 // Coerces optional pagination query params; invalid or missing values fall back to defaults.
 function parsePositiveInt(value: string | undefined, fallback: number): number {
   if (value === undefined || value === "") {
@@ -245,6 +267,66 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
       return reply
         .code(result.created ? 201 : 200)
         .send({ id: result.id, status: result.status });
+    },
+  );
+
+  fastify.get<{ Params: { id: string } }>(
+    "/:id",
+    { schema: getNotificationByIdRouteSchema },
+    async (request, reply) => {
+      const row = await prisma.notifications.findUnique({
+        where: { id: request.params.id },
+        select: {
+          id: true,
+          recipientId: true,
+          channel: true,
+          priority: true,
+          status: true,
+          subject: true,
+          body: true,
+          metadata: true,
+          templateId: true,
+          attemptCount: true,
+          scheduledAt: true,
+          deliveredAt: true,
+          failureReason: true,
+          createdAt: true,
+          updatedAt: true,
+          attemptLogs: {
+            // full attempt history
+            select: {
+              attemptNumber: true,
+              workerId: true,
+              provider: true,
+              success: true,
+              providerMessageId: true,
+              errorCode: true,
+              errorMessage: true,
+              durationMs: true,
+              attemptedAt: true,
+            },
+            orderBy: { attemptNumber: "asc" },
+          },
+        },
+      });
+
+      if (!row) {
+        return reply.code(404).send({ error: "Notification not found" });
+      }
+
+      const { attemptLogs, ...notification } = row;
+
+      return reply.send({
+        ...notification,
+        scheduledAt: row.scheduledAt?.toISOString() ?? null,
+        deliveredAt: row.deliveredAt?.toISOString() ?? null,
+        createdAt: row.createdAt.toISOString(),
+        updatedAt: row.updatedAt.toISOString(),
+        attempts: attemptLogs.map((a) => ({
+          ...a,
+          attemptedAt: a.attemptedAt.toISOString(),
+        })),
+      });
     },
   );
 };

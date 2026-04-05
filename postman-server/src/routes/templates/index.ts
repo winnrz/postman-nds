@@ -23,29 +23,49 @@ const createTemplateSchema = {
       type: "object",
       properties: {
         id: { type: "string" },
-        status: { type: "string" },
       },
     },
   },
 };
 
+const templateRowSchema = {
+  type: "object",
+  properties: {
+    id: { type: "string" },
+    name: { type: "string" },
+    channel: { type: "string" },
+    subjectTemplate: { type: ["string", "null"] },
+    bodyTemplate: { type: "string" },
+    version: { type: "integer" },
+    isActive: { type: "boolean" },
+    createdAt: { type: "string" },
+    updatedAt: { type: "string" },
+  },
+} as const;
+
 const listTemplatesSchema = {
   response: {
     200: {
       type: "array",
-      items: {
-        type: "object",
-        properties: {
-          id: { type: "string" },
-          name: { type: "string" },
-          channel: { type: "string" },
-          subjectTemplate: { type: ["string", "null"] },
-          bodyTemplate: { type: "string" },
-          version: { type: "integer" },
-          isActive: { type: "boolean" },
-          createdAt: { type: "string" },
-          updatedAt: { type: "string" },
-        },
+      items: templateRowSchema,
+    },
+  },
+};
+
+const getTemplateByIdSchema = {
+  params: {
+    type: "object",
+    required: ["id"],
+    properties: {
+      id: { type: "string", minLength: 1 },
+    },
+  },
+  response: {
+    200: templateRowSchema,
+    404: {
+      type: "object",
+      properties: {
+        error: { type: "string" },
       },
     },
   },
@@ -122,6 +142,37 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
         }
         throw err;
       }
+    },
+  );
+
+  fastify.get<{ Params: { id: string } }>(
+    "/:id",
+    { schema: getTemplateByIdSchema },
+    async (request, reply) => {
+      const t = await prisma.templates.findUnique({
+        where: { id: request.params.id },
+        select: {
+          id: true,
+          name: true,
+          channel: true,
+          subjectTemplate: true,
+          bodyTemplate: true,
+          version: true,
+          isActive: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      if (!t) {
+        return reply.code(404).send({ error: "Template not found" });
+      }
+
+      return reply.send({
+        ...t,
+        createdAt: t.createdAt.toISOString(),
+        updatedAt: t.updatedAt.toISOString(),
+      });
     },
   );
 };
