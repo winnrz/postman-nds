@@ -9,9 +9,10 @@ import {
 import { prisma } from "../../plugins/prisma";
 import {
   CreateNotificationDto,
+  CreateNotificationsBatchDto,
   ListNotificationsQuery,
 } from "../../models/dtos/notifications";
-import { createNotification } from "../../services/notifications";
+import { createNotification, validateNotificationForCreate } from "../../services/notifications";
 
 // JSON Schema `enum` arrays must stay in sync with Prisma string enums on `Notifications`.
 const channelValues = Object.values(NotificationChannel);
@@ -70,6 +71,10 @@ const notificationRowJsonSchema = {
     metadata: { type: ["object", "null"] },
     createdAt: { type: "string" },
     updatedAt: { type: "string" },
+    attemptedAt: { type: ["string", "null"] },
+    deliveredAt: { type: ["string", "null"] },
+    scheduledAt: { type: ["string", "null"] },
+
   },
 } as const;
 
@@ -82,6 +87,50 @@ export const createNotificationRouteSchema = {
       properties: {
         id: { type: "string" },
         status: { type: "string" },
+      },
+    },
+  },
+} as const;
+
+const batchCreateNotificationsBodySchema = {
+  type: "object",
+  required: ["notifications"],
+  properties: {
+    notifications: {
+      type: "array",
+      minItems: 1,
+      maxItems: 100,
+      items: createNotificationBodyJsonSchema,
+    },
+  },
+  additionalProperties: false,
+} as const;
+
+const batchCreateNotificationResultItemSchema = {
+  type: "object",
+  required: ["index", "success"],
+  properties: {
+    index: { type: "integer", minimum: 0 },
+    success: { type: "boolean" },
+    id: { type: "string" },
+    status: { type: "string" },
+    created: { type: "boolean" },
+    error: { type: "string" },
+    message: { type: "string" },
+    field: { type: "string" },
+  },
+} as const;
+
+export const createNotificationsBatchRouteSchema = {
+  body: batchCreateNotificationsBodySchema,
+  response: {
+    200: {
+      type: "object",
+      properties: {
+        results: {
+          type: "array",
+          items: batchCreateNotificationResultItemSchema,
+        },
       },
     },
   },
@@ -144,6 +193,7 @@ function isEnumValue<T extends string>(
 ): value is T {
   return value !== undefined && (allowed as readonly string[]).includes(value);
 }
+
 
 const root: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get<{ Querystring: ListNotificationsQuery }>(
@@ -216,57 +266,67 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
     "/",
     { schema: createNotificationRouteSchema },
     async (request, reply) => {
-      const body = request.body;
-
-      // JSON Schema cannot assert FK existence; enforce `templateId` points at a real row when provided.
-      if (body.templateId) {
-        const template = await prisma.templates.findUnique({
-          where: { id: body.templateId },
-          select: { id: true },
-        });
-        if (!template) {
-          return reply.code(422).send({
-            error: "Validation failed",
-            field: "templateId",
-            message: "templateId does not reference an existing template",
-          });
-        }
-      }
-
-      // Cross-field rule: at least one of `templateId` or `body` must be provided to avoid creating blank notifications.
-      const hasTemplate = Boolean(body.templateId);
-      const hasBody = body.body !== undefined && body.body.trim().length > 0;
-      if (!hasTemplate && !hasBody) {
-        return reply.code(422).send({
-          error: "Validation failed",
-          message:
-            "Either templateId or a non-empty body is required (template-only or ad-hoc content)",
-        });
-      }
-
-      let scheduledAtIso = "";
-      let scheduledAt: Date | null = null;
-      if (body.scheduleAt !== undefined && body.scheduleAt !== "") {
-        const parsed = new Date(body.scheduleAt);
-        if (Number.isNaN(parsed.getTime())) {
-          return reply.code(422).send({
-            error: "Validation failed",
-            field: "scheduleAt",
-            message: "scheduleAt must be a valid ISO 8601 date string",
-          });
-        }
-        scheduledAtIso = parsed.toISOString();
-        scheduledAt = parsed;
+      const validated = await validateNotificationForCreate(request.body);
+      if (!validated.ok) {
+        return reply.code(validated.statusCode).send(validated.payload);
       }
 
       const result = await createNotification(
-        body,
-        scheduledAt,
-        scheduledAtIso,
+        request.body,
+        validated.scheduledAt,
+        validated.scheduledAtIso,
       );
       return reply
         .code(result.created ? 201 : 200)
         .send({ id: result.id, status: result.status });
+    },
+  );
+
+  fastify.post<{ Body: CreateNotificationsBatchDto }>(
+    "/batch",
+    { schema: createNotificationsBatchRouteSchema },
+    async (request, reply) => {
+      const { notifications } = request.body;
+      const results: Array<{
+        index: number;
+        success: boolean;
+        id?: string;
+        status?: string;
+        created?: boolean;
+        error?: string;
+        message?: string;
+        field?: string;
+      }> = [];
+
+      for (let index = 0; index < notifications.length; index++) {
+        const item = notifications[index];
+        const validated = await validateNotificationForCreate(item);
+        if (!validated.ok) {
+          results.push({
+            index,
+            success: false,
+            error: validated.payload.error,
+            message: validated.payload.message,
+            field: validated.payload.field,
+          });
+          continue;
+        }
+
+        const outcome = await createNotification(
+          item,
+          validated.scheduledAt,
+          validated.scheduledAtIso,
+        );
+        results.push({
+          index,
+          success: true,
+          id: outcome.id,
+          status: outcome.status,
+          created: outcome.created,
+        });
+      }
+
+      return reply.send({ results });
     },
   );
 

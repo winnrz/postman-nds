@@ -6,6 +6,22 @@ import { prisma } from "../../plugins/prisma";
 // Duplicate submissions within this window return the existing notification.
 const IDEMPOTENCY_WINDOW_MS = 24 * 60 * 60 * 1000;
 
+type ValidateCreateOk = {
+  ok: true;
+  scheduledAt: Date | null;
+  scheduledAtIso: string;
+};
+
+type ValidateCreateErr = {
+  ok: false;
+  statusCode: number;
+  payload: {
+    error: string;
+    message?: string;
+    field?: string;
+  };
+};
+
 export type CreateNotificationResult =
   | { created: true; id: string; status: string }
   | { created: false; id: string; status: string };
@@ -86,4 +102,62 @@ export async function createNotification(
     }
     throw err;
   }
+}
+
+/** Same rules as `POST /notifications` before calling `createNotification`. */
+export async function validateNotificationForCreate(
+  body: CreateNotificationDto,
+): Promise<ValidateCreateOk | ValidateCreateErr> {
+  if (body.templateId) {
+    const template = await prisma.templates.findUnique({
+      where: { id: body.templateId },
+      select: { id: true },
+    });
+    if (!template) {
+      return {
+        ok: false,
+        statusCode: 422,
+        payload: {
+          error: "Validation failed",
+          field: "templateId",
+          message: "templateId does not reference an existing template",
+        },
+      };
+    }
+  }
+
+  const hasTemplate = Boolean(body.templateId);
+  const hasBody = body.body !== undefined && body.body.trim().length > 0;
+  if (!hasTemplate && !hasBody) {
+    return {
+      ok: false,
+      statusCode: 422,
+      payload: {
+        error: "Validation failed",
+        message:
+          "Either templateId or a non-empty body is required (template-only or ad-hoc content)",
+      },
+    };
+  }
+
+  let scheduledAtIso = "";
+  let scheduledAt: Date | null = null;
+  if (body.scheduleAt !== undefined && body.scheduleAt !== "") {
+    const parsed = new Date(body.scheduleAt);
+    if (Number.isNaN(parsed.getTime())) {
+      return {
+        ok: false,
+        statusCode: 422,
+        payload: {
+          error: "Validation failed",
+          field: "scheduleAt",
+          message: "scheduleAt must be a valid ISO 8601 date string",
+        },
+      };
+    }
+    scheduledAtIso = parsed.toISOString();
+    scheduledAt = parsed;
+  }
+
+  return { ok: true, scheduledAt, scheduledAtIso };
 }
