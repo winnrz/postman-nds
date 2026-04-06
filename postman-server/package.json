@@ -13,7 +13,9 @@
     "start": "npm run build:ts && fastify start -l info dist/app.js",
     "watch:ts": "tsc -w",
     "dev": "npm run build:ts && concurrently -k -p \"[{name}]\" -n \"TypeScript,App\" -c \"yellow.bold,cyan.bold\" \"npm:watch:ts\" \"npm:dev:start\"",
-    "dev:start": "fastify start --ignore-watch=.ts$ -w -l info -P dist/app.js"
+    "dev:start": "fastify start --ignore-watch=.ts$ -w -l info -P dist/app.js",
+    "dev:worker": "ts-node src/workers/worker.entry.ts",
+    "start:worker": "npm run build:ts && node dist/workers/worker.entry.js"
   },
   "keywords": [],
   "author": "",
