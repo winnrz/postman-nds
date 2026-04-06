@@ -6,9 +6,9 @@ import {
 import { DispatchResult } from "../models/types";
 import { prisma } from "../plugins/prisma";
 import { emailHandler, smsHandler } from "./handlers";
+import { computeBackoffSeconds, isPermanentFailure, parseErrorCode } from "./worker.util";
 
 const VISIBILITY_TIMEOUT_MS = 30_000;
-const MAX_BACKOFF_SECONDS = parseInt(process.env.MAX_BACKOFF_SECONDS ?? "300");
 const WORKER_ID = process.env.WORKER_ID ?? "worker-1";
 
 type QueueJob = {
@@ -20,6 +20,7 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Atomically claim the next available job by setting a visibility timeout, ensuring only one worker can claim it.
 async function claimNextJob(): Promise<QueueJob | null> {
   const now = new Date();
   // Pull the oldest visible job (null/expired timeout means available to claim).
@@ -54,27 +55,6 @@ async function claimNextJob(): Promise<QueueJob | null> {
   };
 }
 
-function parseErrorCode(error: string | null): string | null {
-  if (!error) return null;
-  const [firstToken] = error.split(":");
-  return /^\d{3}$/.test(firstToken.trim()) ? firstToken.trim() : null;
-}
-
-function isPermanentFailure(result: DispatchResult): boolean {
-  // Treat 4xx-like provider failures as non-retryable except for 429 rate limits, which are transient and should be retried with backoff.
-  const code = parseErrorCode(result.error);
-  if (!code) return false;
-  return code.startsWith("4") && code !== "429";
-}
-
-function computeBackoffSeconds(attemptNumber: number): number {
-  // Exponential retry with cap to avoid unbounded queue delays.
-  const base = 30;
-  const exp = Math.pow(2, attemptNumber - 1);
-  const jitter = Math.random() * 0.1;
-  return Math.min(MAX_BACKOFF_SECONDS, base * exp * (1 + jitter));
-}
-
 function getProviderForChannel(channel: NotificationChannel): NotificationProvider {
   switch (channel) {
     case NotificationChannel.EMAIL:
@@ -84,6 +64,7 @@ function getProviderForChannel(channel: NotificationChannel): NotificationProvid
   }
 }
 
+// Dispatch to the appropriate handler based on channel; handlers simulate provider interaction and return a structured result.
 async function dispatch(notification: {
   id: string;
   subject: string | null;
@@ -105,6 +86,7 @@ async function dispatch(notification: {
   };
 }
 
+// Core worker logic: claim a job, attempt delivery, and handle success, retryable failure, or terminal failure with appropriate state updates and logging.
 export async function processNextQueueItem(): Promise<boolean> {
   const job = await claimNextJob();
   if (!job) return false;
