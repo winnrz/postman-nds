@@ -6,6 +6,7 @@ import {
 } from "../generated/prisma/client";
 import { DispatchResult } from "../models/types";
 import { prisma } from "../plugins/prisma";
+import sleep from "../utils/sleep";
 import { emailHandler, smsHandler } from "./handlers";
 
 
@@ -17,9 +18,6 @@ type QueueJob = {
   notificationId: string;
 };
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 // Atomically claim the next available job by setting a visibility timeout, ensuring only one worker can claim it.
 async function claimNextJob(): Promise<QueueJob | null> {
