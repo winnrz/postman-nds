@@ -140,6 +140,7 @@ export async function processNextQueueItem(): Promise<boolean> {
           deliveredAt: now,
           providerMessageId: result.providerMessageId,
           failureReason: null,
+          attemptCount: attemptNumber,
         },
       });
 
