@@ -3,8 +3,3 @@ export type DispatchResult = {
   providerMessageId: string | null;
   error: string | null;
 };
-
-export type QueueJob = {
-  queueId: string;
-  notificationId: string;
-};

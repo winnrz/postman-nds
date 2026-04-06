@@ -1,6 +1,5 @@
 import { DispatchResult } from "../../models/types";
 
-
 export async function emailHandler(notification: {
   id: string;
   subject: string | null;

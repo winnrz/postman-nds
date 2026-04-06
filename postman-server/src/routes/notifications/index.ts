@@ -12,7 +12,10 @@ import {
   CreateNotificationsBatchDto,
   ListNotificationsQuery,
 } from "../../models/dtos/notifications";
-import { createNotification, validateNotificationForCreate } from "../../services/notifications";
+import {
+  createNotification,
+  validateNotificationForCreate,
+} from "../../services/notifications";
 
 // JSON Schema `enum` arrays must stay in sync with Prisma string enums on `Notifications`.
 const channelValues = Object.values(NotificationChannel);
@@ -74,7 +77,6 @@ const notificationRowJsonSchema = {
     attemptedAt: { type: ["string", "null"] },
     deliveredAt: { type: ["string", "null"] },
     scheduledAt: { type: ["string", "null"] },
-
   },
 } as const;
 
@@ -194,7 +196,6 @@ function isEnumValue<T extends string>(
   return value !== undefined && (allowed as readonly string[]).includes(value);
 }
 
-
 const root: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get<{ Querystring: ListNotificationsQuery }>(
     "/",
@@ -209,6 +210,7 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
       );
       const skip = (page - 1) * pageSize;
 
+      //  Build Prisma `where` object with optional filters if provided and valid.
       const where: Prisma.NotificationsWhereInput = {};
 
       if (q.recipientId) {

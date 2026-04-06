@@ -17,7 +17,7 @@ export function isPermanentFailure(result: DispatchResult): boolean {
 }
 
 export function computeBackoffSeconds(attemptNumber: number): number {
-  // Exponential retry with cap to avoid unbounded queue delays.
+  // Exponential retry with cap to avoid unbounded queue delays. Add some random jitter to prevent thundering herd retries.
   const base = 30;
   const exp = Math.pow(2, attemptNumber - 1);
   const jitter = Math.random() * 0.1;

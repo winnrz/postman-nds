@@ -18,7 +18,6 @@ type QueueJob = {
   notificationId: string;
 };
 
-
 // Atomically claim the next available job by setting a visibility timeout, ensuring only one worker can claim it.
 async function claimNextJob(): Promise<QueueJob | null> {
   const now = new Date();
