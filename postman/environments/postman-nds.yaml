@@ -12,3 +12,7 @@ values:
     value: 'template-id-placeholder'
     enabled: true
     type: default
+  - key: dlqItemId
+    value: 'dlq-item-id-placeholder'
+    enabled: true
+    type: default

@@ -1,12 +1,7 @@
 import { FastifyPluginAsync } from "fastify";
 import { NotificationStatus } from "../../generated/prisma/client";
 import { prisma } from "../../plugins/prisma";
-
-function parsePositiveInt(value: string | undefined, fallback: number): number {
-  if (!value) return fallback;
-  const n = parseInt(value, 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
-}
+import { parsePositiveInt } from "../../utils";
 
 const root: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get<{ Querystring: { page?: string; pageSize?: string } }>(
@@ -14,7 +9,10 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
     async (request, reply) => {
       const page = parsePositiveInt(request.query.page, 1);
       // Cap page size to prevent large result sets from hammering the DB.
-      const pageSize = Math.min(parsePositiveInt(request.query.pageSize, 50), 200);
+      const pageSize = Math.min(
+        parsePositiveInt(request.query.pageSize, 50),
+        200,
+      );
       const skip = (page - 1) * pageSize;
 
       // Fetch total count and page of DLQ items in parallel.
@@ -55,6 +53,10 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
         return reply.code(404).send({ error: "DLQ item not found" });
       }
 
+      if (dlqItem.requeuedAt) {
+        return reply.code(409).send({ error: "DLQ item already requeued" });
+      }
+
       // Requeue is a deliberate operator action after investigating the failure.
       // Reset attempt count so the notification gets a full retry cycle,
       // not just one final attempt.
@@ -83,59 +85,59 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
         });
       });
 
-      return reply.send({ requeued: true, notificationId: dlqItem.notificationId });
+      return reply.send({
+        requeued: true,
+        notificationId: dlqItem.notificationId,
+      });
     },
   );
 
-  fastify.post(
-    "/requeue-all",
-    async (request, reply) => {
-      // Only pick up items that have not already been requeued — idempotent
-      // so hitting this endpoint twice does not double-enqueue.
-      const dlqItems = await prisma.deadLetterQueue.findMany({
-        where: { requeuedAt: null },
-        select: { id: true, notificationId: true },
+  fastify.post("/requeue-all", async (request, reply) => {
+    // Only pick up items that have not already been requeued — idempotent
+    // so hitting this endpoint twice does not double-enqueue.
+    const dlqItems = await prisma.deadLetterQueue.findMany({
+      where: { requeuedAt: null },
+      select: { id: true, notificationId: true },
+    });
+
+    if (dlqItems.length === 0) {
+      return reply.send({ requeued: 0 });
+    }
+
+    const now = new Date();
+
+    // All state changes are atomic: notifications flip to PENDING, queue rows
+    // are inserted, and DLQ items are stamped — or none of it happens.
+    await prisma.$transaction(async (tx) => {
+      const notificationIds = dlqItems.map((item) => item.notificationId);
+
+      await tx.notifications.updateMany({
+        where: { id: { in: notificationIds } },
+        data: {
+          status: NotificationStatus.PENDING,
+          attemptCount: 0,
+          failureReason: null,
+        },
       });
 
-      if (dlqItems.length === 0) {
-        return reply.send({ requeued: 0 });
-      }
-
-      const now = new Date();
-
-      // All state changes are atomic: notifications flip to PENDING, queue rows
-      // are inserted, and DLQ items are stamped — or none of it happens.
-      await prisma.$transaction(async (tx) => {
-        const notificationIds = dlqItems.map((item) => item.notificationId);
-
-        await tx.notifications.updateMany({
-          where: { id: { in: notificationIds } },
-          data: {
-            status: NotificationStatus.PENDING,
-            attemptCount: 0,
-            failureReason: null,
-          },
-        });
-
-        // skipDuplicates guards against a queue row already existing for any
-        // of these notifications (e.g. from a partial previous requeue).
-        await tx.notificationQueue.createMany({
-          data: notificationIds.map((id) => ({
-            notificationId: id,
-            priority: "MEDIUM",
-          })),
-          skipDuplicates: true,
-        });
-
-        await tx.deadLetterQueue.updateMany({
-          where: { id: { in: dlqItems.map((item) => item.id) } },
-          data: { requeuedAt: now },
-        });
+      // skipDuplicates guards against a queue row already existing for any
+      // of these notifications (e.g. from a partial previous requeue).
+      await tx.notificationQueue.createMany({
+        data: notificationIds.map((id) => ({
+          notificationId: id,
+          priority: "MEDIUM",
+        })),
+        skipDuplicates: true,
       });
 
-      return reply.send({ requeued: dlqItems.length });
-    },
-  );
+      await tx.deadLetterQueue.updateMany({
+        where: { id: { in: dlqItems.map((item) => item.id) } },
+        data: { requeuedAt: now },
+      });
+    });
+
+    return reply.send({ requeued: dlqItems.length });
+  });
 };
 
 export default root;

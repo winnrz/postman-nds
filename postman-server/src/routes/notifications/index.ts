@@ -16,6 +16,7 @@ import {
   createNotification,
   validateNotificationForCreate,
 } from "../../services/notifications";
+import { parsePositiveInt } from "../../utils";
 
 // JSON Schema `enum` arrays must stay in sync with Prisma string enums on `Notifications`.
 const channelValues = Object.values(NotificationChannel);
@@ -179,14 +180,6 @@ export const getNotificationByIdRouteSchema = {
   },
 } as const;
 
-// Coerces optional pagination query params; invalid or missing values fall back to defaults.
-function parsePositiveInt(value: string | undefined, fallback: number): number {
-  if (value === undefined || value === "") {
-    return fallback;
-  }
-  const n = parseInt(value, 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
-}
 
 // Optional filters are loose strings from the querystring; this narrows them before writing Prisma `where`.
 function isEnumValue<T extends string>(

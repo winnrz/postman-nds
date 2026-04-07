@@ -1,0 +1,43 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/dlq/{{dlqItemId}}/requeue'
+order: 2000
+headers:
+  - key: Accept
+    value: application/json
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('status is 200, 404, or 409', function () {
+        pm.expect([200, 404, 409]).to.include(pm.response.code);
+      });
+
+      pm.test('response is JSON object', function () {
+        pm.response.to.be.json;
+        const json = pm.response.json();
+        pm.expect(json).to.be.an('object');
+      });
+
+      pm.test('successful requeue has expected fields', function () {
+        if (pm.response.code !== 200) return;
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('requeued', true);
+        pm.expect(json).to.have.property('notificationId');
+        pm.expect(json.notificationId).to.be.a('string').and.not.be.empty;
+      });
+
+      pm.test('error responses include message', function () {
+        if (![404, 409].includes(pm.response.code)) return;
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('error');
+        pm.expect(json.error).to.be.a('string').and.not.be.empty;
+      });
+
+      pm.test('capture notification id on success', function () {
+        if (pm.response.code !== 200) return;
+        const json = pm.response.json();
+        if (json.notificationId) {
+          pm.collectionVariables.set('notificationId', String(json.notificationId));
+        }
+      });

@@ -1,0 +1,64 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/dlq'
+order: 1000
+headers:
+  - key: Accept
+    value: application/json
+queryParams:
+  - key: page
+    value: '1'
+  - key: pageSize
+    value: '50'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('status is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('response is JSON object', function () {
+        pm.response.to.be.json;
+        const json = pm.response.json();
+        pm.expect(json).to.be.an('object');
+      });
+
+      pm.test('body has pagination fields and items array', function () {
+        const json = pm.response.json();
+
+        pm.expect(json).to.have.property('items');
+        pm.expect(json.items).to.be.an('array');
+
+        pm.expect(json).to.have.property('page');
+        pm.expect(json.page).to.be.a('number');
+
+        pm.expect(json).to.have.property('pageSize');
+        pm.expect(json.pageSize).to.be.a('number');
+
+        pm.expect(json).to.have.property('total');
+        pm.expect(json.total).to.be.a('number');
+      });
+
+      pm.test('items match expected DLQ shape', function () {
+        const json = pm.response.json();
+
+        json.items.forEach((item, index) => {
+          pm.expect(item, `items[${index}] is object`).to.be.an('object');
+          pm.expect(item).to.have.property('id');
+          pm.expect(item.id, `items[${index}].id is string`).to.be.a('string').and.not.be.empty;
+          pm.expect(item).to.have.property('notificationId');
+          pm.expect(item.notificationId, `items[${index}].notificationId is string`).to.be.a('string').and.not.be.empty;
+
+          if (Object.prototype.hasOwnProperty.call(item, 'notification') && item.notification !== null) {
+            pm.expect(item.notification, `items[${index}].notification is object`).to.be.an('object');
+          }
+        });
+      });
+
+      pm.test('capture dlq item id if available', function () {
+        const json = pm.response.json();
+        if (Array.isArray(json.items) && json.items.length > 0 && json.items[0]?.id) {
+          pm.environment.set('dlqItemId', String(json.items[0].id));
+        }
+      });

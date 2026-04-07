@@ -1,0 +1,27 @@
+$kind: http-request
+method: POST
+url: '{{baseUrl}}/dlq/requeue-all'
+order: 3000
+headers:
+  - key: Accept
+    value: application/json
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('status is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('response is JSON object', function () {
+        pm.response.to.be.json;
+        const json = pm.response.json();
+        pm.expect(json).to.be.an('object');
+      });
+
+      pm.test('response includes requeued count', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('requeued');
+        pm.expect(json.requeued).to.be.a('number');
+        pm.expect(json.requeued).to.be.at.least(0);
+      });

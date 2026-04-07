@@ -1,0 +1,61 @@
+$kind: http-request
+method: GET
+url: '{{baseUrl}}/metrics'
+order: 1000
+headers:
+  - key: Accept
+    value: application/json
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('status is 200', function () {
+        pm.response.to.have.status(200);
+      });
+
+      pm.test('response is JSON object', function () {
+        pm.response.to.be.json;
+        const json = pm.response.json();
+        pm.expect(json).to.be.an('object');
+      });
+
+      pm.test('metrics response has expected top-level fields', function () {
+        const json = pm.response.json();
+        ['timestamp', 'queue', 'workers', 'sendRates', 'throughput', 'failureRate', 'rateLimiter'].forEach((key) => {
+          pm.expect(json).to.have.property(key);
+        });
+      });
+
+      pm.test('queue metrics are valid', function () {
+        const json = pm.response.json();
+        pm.expect(json.queue).to.be.an('object');
+        pm.expect(json.queue.depth).to.be.a('number');
+        pm.expect(json.queue.visibleDepth).to.be.a('number');
+      });
+
+      pm.test('worker and throughput metrics are valid', function () {
+        const json = pm.response.json();
+        pm.expect(json.workers).to.be.an('object');
+        pm.expect(json.workers.activeCount).to.be.a('number');
+
+        pm.expect(json.throughput).to.be.an('object');
+        pm.expect(json.throughput.last1h).to.be.a('number');
+        pm.expect(json.throughput.last24h).to.be.a('number');
+        pm.expect(json.throughput.last7d).to.be.a('number');
+      });
+
+      pm.test('send rates, failure rate, and rate limiter fields are valid', function () {
+        const json = pm.response.json();
+
+        pm.expect(json.sendRates).to.be.an('object');
+        pm.expect(json.sendRates.successfulAttempts).to.be.a('number');
+        pm.expect(json.sendRates.byProvider).to.be.an('object');
+
+        pm.expect(json.failureRate).to.be.an('object');
+        pm.expect(json.failureRate.totalAttempts).to.be.a('number');
+        pm.expect(json.failureRate.failedAttempts).to.be.a('number');
+        pm.expect(json.failureRate.failureRatio).to.be.a('number');
+
+        pm.expect(json.rateLimiter).to.be.an('object');
+        pm.expect(json.rateLimiter.configured).to.be.a('boolean');
+      });
