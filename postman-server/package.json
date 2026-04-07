@@ -15,8 +15,9 @@
     "dev": "npm run build:ts && concurrently -k -p \"[{name}]\" -n \"TypeScript,App\" -c \"yellow.bold,cyan.bold\" \"npm:watch:ts\" \"npm:dev:start\"",
     "dev:start": "fastify start --ignore-watch=.ts$ -w -l info -P dist/app.js",
     "dev:worker": "tsx src/workers/worker.entry.ts",
+    "start:worker": "npm run build:ts && node dist/workers/worker.entry.js",
     "dev:scheduler": "tsx src/scheduler/scheduler.entry.ts",
-    "start:worker": "npm run build:ts && node dist/workers/worker.entry.js"
+    "start:scheduler": "npm run build:ts && node dist/scheduler/scheduler.entry.js"
   },
   "keywords": [],
   "author": "",
