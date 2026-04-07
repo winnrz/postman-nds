@@ -1,6 +1,7 @@
 import { FastifyPluginAsync } from "fastify";
 
 import { prisma } from "../../plugins/prisma";
+import { getRateLimitState } from "../../workers/rateLimiter";
 
 const root: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get("/", async (_request, reply) => {
@@ -100,10 +101,7 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
         failedAttempts,
         failureRatio,
       },
-      // No rate limiter implementation exists in this repo yet.
-      rateLimiter: {
-        configured: false,
-      },
+      rateLimiter: await getRateLimitState(),
     });
   });
 };

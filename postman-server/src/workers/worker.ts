@@ -8,7 +8,7 @@ import { DispatchResult } from "../models/types";
 import { prisma } from "../plugins/prisma";
 import sleep from "../utils/sleep";
 import { emailHandler, smsHandler } from "./handlers";
-
+import { acquireRateLimitToken } from "./rateLimiter";
 
 const VISIBILITY_TIMEOUT_MS = 30_000;
 const WORKER_ID = process.env.WORKER_ID ?? "worker-1";
@@ -53,7 +53,9 @@ async function claimNextJob(): Promise<QueueJob | null> {
   };
 }
 
-function getProviderForChannel(channel: NotificationChannel): NotificationProvider {
+function getProviderForChannel(
+  channel: NotificationChannel,
+): NotificationProvider {
   switch (channel) {
     case NotificationChannel.EMAIL:
       return NotificationProvider.SENDGRID;
@@ -107,6 +109,19 @@ export async function processNextQueueItem(): Promise<boolean> {
     // Queue row can outlive the source notification; clean up stale queue entry.
     await prisma.notificationQueue.deleteMany({ where: { id: job.queueId } });
     return true;
+  }
+
+  // Acquire a rate limit token before dispatching.
+  // If the bucket is empty, release the job back to the queue with a short
+  // delay and pick up a different job — avoids starving the worker.
+  const tokenAcquired = await acquireRateLimitToken(notification.channel);
+  if (!tokenAcquired) {
+    const retryAt = new Date(Date.now() + 10_000);
+    await prisma.notificationQueue.update({
+      where: { id: job.queueId },
+      data: { visibilityTimeout: retryAt, workerId: null },
+    });
+    return false;
   }
 
   const provider = getProviderForChannel(notification.channel);
@@ -265,4 +280,3 @@ export async function runWorkerLoop(intervalMs = 1000): Promise<void> {
     await sleep(intervalMs);
   }
 }
-
