@@ -1,6 +1,15 @@
-version: '3.9'
-
 services:
+  migrate:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: sh -c "npm install && npx prisma migrate deploy"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      - postgres
+
   postgres:
     image: postgres:16-alpine
     environment:
@@ -29,7 +38,7 @@ services:
     depends_on:
       - postgres
       - redis
-    command: ["node", "dist/app.js"]   
+    command: ["node", "dist/app.js"]
 
   scheduler:
     build:
@@ -38,7 +47,7 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
-    command: ["node", "dist/scheduler/scheduler.entry.js"]  
+    command: ["node", "dist/scheduler/scheduler.entry.js"]
     depends_on:
       - api
       - redis
@@ -51,13 +60,13 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
-    command: ["node", "dist/workers/worker.entry.js"]       
+    command: ["node", "dist/workers/worker.entry.js"]
     depends_on:
       - api
       - redis
       - postgres
     deploy:
-      replicas: 1 # Start with 1 replica, can be scaled up as needed using `docker-compose up --scale worker=3`
+      replicas: 1
 
 volumes:
   postgres_data:
