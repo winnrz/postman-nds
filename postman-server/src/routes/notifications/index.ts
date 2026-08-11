@@ -72,7 +72,10 @@ const notificationRowJsonSchema = {
     status: { type: "string" },
     subject: { type: ["string", "null"] },
     body: { type: ["string", "null"] },
-    metadata: { type: ["object", "null"] },
+    // `additionalProperties` is required here: fast-json-stringify serialises an
+    // object schema with no declared properties as `{}`, silently dropping the
+    // template variables.
+    metadata: { type: ["object", "null"], additionalProperties: true },
     createdAt: { type: "string" },
     updatedAt: { type: "string" },
     attemptedAt: { type: ["string", "null"] },
@@ -166,11 +169,38 @@ const notificationIdParamsJsonSchema = {
   },
 } as const;
 
+// One row per delivery attempt — the retry/backoff history behind a notification.
+const attemptRowJsonSchema = {
+  type: "object",
+  properties: {
+    attemptNumber: { type: "integer" },
+    workerId: { type: "string" },
+    provider: { type: ["string", "null"] },
+    success: { type: "boolean" },
+    providerMessageId: { type: ["string", "null"] },
+    errorCode: { type: ["string", "null"] },
+    errorMessage: { type: ["string", "null"] },
+    durationMs: { type: ["integer", "null"] },
+    attemptedAt: { type: "string" },
+  },
+} as const;
+
 /** `GET /notifications/:id` */
 export const getNotificationByIdRouteSchema = {
   params: notificationIdParamsJsonSchema,
   response: {
-    200: notificationRowJsonSchema,
+    // Fastify strips response properties absent from the schema, so the detail
+    // view needs its own shape — the list row schema would drop `attempts`.
+    200: {
+      type: "object",
+      properties: {
+        ...notificationRowJsonSchema.properties,
+        attemptCount: { type: "integer" },
+        maxAttempts: { type: "integer" },
+        failureReason: { type: ["string", "null"] },
+        attempts: { type: "array", items: attemptRowJsonSchema },
+      },
+    },
     404: {
       type: "object",
       properties: {
@@ -270,6 +300,7 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
         request.body,
         validated.scheduledAt,
         validated.scheduledAtIso,
+        validated.content,
       );
       return reply
         .code(result.created ? 201 : 200)
@@ -311,6 +342,7 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
           item,
           validated.scheduledAt,
           validated.scheduledAtIso,
+          validated.content,
         );
         results.push({
           index,
@@ -342,6 +374,7 @@ const root: FastifyPluginAsync = async (fastify): Promise<void> => {
           metadata: true,
           templateId: true,
           attemptCount: true,
+          maxAttempts: true,
           scheduledAt: true,
           deliveredAt: true,
           failureReason: true,

@@ -1,4 +1,8 @@
-import { computeNotificationIdempotencyKey, isUniqueConstraintError } from "../../lib";
+import {
+  computeNotificationIdempotencyKey,
+  isUniqueConstraintError,
+  renderTemplate,
+} from "../../lib";
 import { CreateNotificationDto } from "../../models/dtos/notifications";
 import { NotificationStatus } from "../../models/enums";
 import { prisma } from "../../plugins/prisma";
@@ -6,10 +10,17 @@ import { prisma } from "../../plugins/prisma";
 // Duplicate submissions within this window return the existing notification.
 const IDEMPOTENCY_WINDOW_MS = 24 * 60 * 60 * 1000;
 
+/** Content the notification row is created with, after any template render. */
+export type ResolvedContent = {
+  subject: string | null;
+  body: string | null;
+};
+
 type ValidateCreateOk = {
   ok: true;
   scheduledAt: Date | null;
   scheduledAtIso: string;
+  content: ResolvedContent;
 };
 
 type ValidateCreateErr = {
@@ -30,6 +41,7 @@ export async function createNotification(
   body: CreateNotificationDto,
   scheduledAt: Date | null,
   scheduledAtIso: string,
+  content: ResolvedContent,
 ): Promise<CreateNotificationResult> {
   const idempotencyKey = computeNotificationIdempotencyKey(body, scheduledAtIso);
 
@@ -60,8 +72,10 @@ export async function createNotification(
           recipientId: body.recipientId,
           channel: body.channel,
           priority: body.priority,
-          subject: body.subject ?? null,
-          body: body.body ?? null,
+          // Already resolved by `validateNotificationForCreate` — a template's
+          // rendered output when `templateId` is set, the raw fields otherwise.
+          subject: content.subject,
+          body: content.body,
           metadata: body.metadata ?? undefined,
           scheduledAt,
           // future-dated notifications wait in SCHEDULED status;
@@ -108,10 +122,22 @@ export async function createNotification(
 export async function validateNotificationForCreate(
   body: CreateNotificationDto,
 ): Promise<ValidateCreateOk | ValidateCreateErr> {
+  // Ad-hoc content unless a template overrides it below.
+  let content: ResolvedContent = {
+    subject: body.subject ?? null,
+    body: body.body ?? null,
+  };
+
   if (body.templateId) {
     const template = await prisma.templates.findUnique({
       where: { id: body.templateId },
-      select: { id: true },
+      select: {
+        id: true,
+        channel: true,
+        subjectTemplate: true,
+        bodyTemplate: true,
+        isActive: true,
+      },
     });
     if (!template) {
       return {
@@ -124,6 +150,65 @@ export async function validateNotificationForCreate(
         },
       };
     }
+
+    if (!template.isActive) {
+      return {
+        ok: false,
+        statusCode: 422,
+        payload: {
+          error: "Validation failed",
+          field: "templateId",
+          message: "template is not active",
+        },
+      };
+    }
+
+    // A template is written against one channel; its copy (and subject rules)
+    // do not carry over to another.
+    if (template.channel !== body.channel) {
+      return {
+        ok: false,
+        statusCode: 422,
+        payload: {
+          error: "Validation failed",
+          field: "templateId",
+          message: `template is for the ${template.channel} channel, not ${body.channel}`,
+        },
+      };
+    }
+
+    // `metadata` supplies the template variables; `recipientId` is always available.
+    const variables: Record<string, string> = {
+      ...(body.metadata ?? {}),
+      recipientId: body.recipientId,
+    };
+
+    const renderedBody = renderTemplate(template.bodyTemplate, variables);
+    const renderedSubject = template.subjectTemplate
+      ? renderTemplate(template.subjectTemplate, variables)
+      : null;
+
+    // Fail loudly rather than dispatching copy with `{{name}}` still in it.
+    const missing = [
+      ...new Set([...renderedBody.missing, ...(renderedSubject?.missing ?? [])]),
+    ];
+    if (missing.length > 0) {
+      return {
+        ok: false,
+        statusCode: 422,
+        payload: {
+          error: "Validation failed",
+          field: "metadata",
+          message: `template variables missing from metadata: ${missing.join(", ")}`,
+        },
+      };
+    }
+
+    content = {
+      // Template subject wins when defined; an explicit subject is the fallback.
+      subject: renderedSubject?.text ?? body.subject ?? null,
+      body: renderedBody.text,
+    };
   }
 
   const hasTemplate = Boolean(body.templateId);
@@ -159,5 +244,5 @@ export async function validateNotificationForCreate(
     scheduledAt = parsed;
   }
 
-  return { ok: true, scheduledAt, scheduledAtIso };
+  return { ok: true, scheduledAt, scheduledAtIso, content };
 }

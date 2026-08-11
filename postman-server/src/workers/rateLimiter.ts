@@ -1,4 +1,4 @@
-import { redis } from "../plugins/redis";
+import { connectRedis, redis } from "../plugins/redis";
 
 // Default rate limits per channel.
 const RATE_LIMITS: Record<string, number> = {
@@ -54,6 +54,7 @@ export async function acquireRateLimitToken(channel: string): Promise<boolean> {
   const key = `rate_limit:${channel.toLowerCase()}`;
   const now = Math.floor(Date.now() / 1000);
 
+  await connectRedis();
   const result = await redis.eval(TOKEN_BUCKET_SCRIPT, {
     keys: [key],
     arguments: [String(limit), String(REFILL_INTERVAL_SECONDS), String(now)],
@@ -62,16 +63,39 @@ export async function acquireRateLimitToken(channel: string): Promise<boolean> {
   return result === 1;
 }
 
-export async function getRateLimitState(): Promise<Record<string, { tokens: number; limit: number }>> {
+export type RateLimitState = Record<
+  string,
+  { tokens: number; limit: number; available: boolean }
+>;
+
+export async function getRateLimitState(): Promise<RateLimitState> {
   // Used by the metrics endpoint to expose current token counts per channel.
-  const state: Record<string, { tokens: number; limit: number }> = {};
+  // Redis being down must not take the metrics endpoint with it — the dashboard
+  // still needs queue and worker numbers, so buckets report `available: false`.
+  const state: RateLimitState = {};
+
+  let reachable = true;
+  try {
+    await connectRedis();
+  } catch (error) {
+    reachable = false;
+    // eslint-disable-next-line no-console
+    console.error("[rateLimiter] redis unreachable for state read", error);
+  }
 
   for (const [channel, limit] of Object.entries(RATE_LIMITS)) {
+    if (!reachable) {
+      state[channel] = { tokens: 0, limit, available: false };
+      continue;
+    }
+
     const key = `rate_limit:${channel}`;
     const bucket = await redis.hGetAll(key);
     state[channel] = {
+      // An untouched bucket is implicitly full — the Lua script seeds it on first use.
       tokens: bucket.tokens ? parseInt(bucket.tokens) : limit,
       limit,
+      available: true,
     };
   }
 

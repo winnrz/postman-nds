@@ -260,7 +260,9 @@ export async function processNextQueueItem(): Promise<boolean> {
     await tx.notificationQueue.update({
       where: { id: job.queueId },
       data: {
-        workerId: WORKER_ID,
+        // Release the claim: this row is waiting out backoff, not being worked
+        // on. A non-null workerId means "in flight" to anything inspecting the queue.
+        workerId: null,
         visibilityTimeout: nextVisibleAt,
       },
     });
