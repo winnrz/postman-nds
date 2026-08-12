@@ -6,16 +6,37 @@ import cors from "@fastify/cors";
 // localhost:4000 and localhost:3000 — also cross-origin, hence the default.
 const DEFAULT_ORIGINS = ["http://localhost:4000"];
 
-// Comma-separated so a preview deployment can be allowed alongside production:
-//   CORS_ORIGIN=https://pulse.vercel.app,https://pulse-git-x.vercel.app
-function allowedOrigins(): string[] {
+/**
+ * Entries may contain `*`. Vercel mints a fresh origin for every deployment
+ * (`postman-a9w4hx7s1-<team>.vercel.app`), so an exact list goes stale the next
+ * time anyone clicks "Visit" on a build.
+ *
+ * `*` matches within a single label only — it cannot span `.` or `/` — so
+ * `https://postman-*-team.vercel.app` will not match a lookalike host like
+ * `https://postman-x-team.vercel.app.evil.com`.
+ */
+function toMatcher(entry: string): string | RegExp {
+  if (!entry.includes("*")) return entry;
+
+  const pattern = entry
+    .split("*")
+    .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("[^./]*");
+
+  return new RegExp(`^${pattern}$`);
+}
+
+// Comma-separated so preview deployments can be allowed alongside production:
+//   CORS_ORIGIN=https://app.vercel.app,https://app-*-team.vercel.app
+function allowedOrigins(): (string | RegExp)[] {
   const configured = process.env.CORS_ORIGIN;
   if (!configured) return DEFAULT_ORIGINS;
 
   return configured
     .split(",")
     .map((origin) => origin.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .map(toMatcher);
 }
 
 export default fp(async (fastify) => {

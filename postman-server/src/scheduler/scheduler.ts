@@ -1,6 +1,7 @@
 import { NotificationStatus } from "../generated/prisma/client";
 import { prisma } from "../plugins/prisma";
 import sleep from "../utils/sleep";
+import { purgeExpiredNotifications } from "./retention";
 import {
   acquireSchedulerLock,
   emitHighVolumeAlertIfNeeded,
@@ -83,6 +84,20 @@ export async function runSchedulerCycle(): Promise<number> {
     // eslint-disable-next-line no-console
     console.info(`[scheduler] enqueued ${enqueued} scheduled notifications`);
     emitHighVolumeAlertIfNeeded(enqueued);
+
+    // Runs under the same advisory lock, so only one scheduler purges. A failure
+    // here must not cost us the enqueue above, which is the scheduler's real job.
+    await purgeExpiredNotifications(now)
+      .then((purged) => {
+        if (purged > 0) {
+          // eslint-disable-next-line no-console
+          console.info(`[scheduler] purged ${purged} expired notifications`);
+        }
+      })
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error("[scheduler] retention purge failed", error);
+      });
 
     return enqueued;
   } finally {

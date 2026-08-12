@@ -21,6 +21,8 @@ export type PipelineEvent = {
 
 export type PipelineSnapshot = {
   notifications: TrackedNotification[];
+  /** Accepted in the last minute — computed here, where a poll timestamp already exists. */
+  acceptedRecently: number;
   byStage: Record<Stage, TrackedNotification[]>;
   metrics: Metrics | null;
   queue: QueueSnapshot | null;
@@ -80,6 +82,7 @@ export function usePipeline(
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [queue, setQueue] = useState<QueueSnapshot | null>(null);
   const [dlq, setDlq] = useState<DlqItem[]>([]);
+  const [acceptedRecently, setAcceptedRecently] = useState(0);
   const [events, setEvents] = useState<PipelineEvent[]>([]);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -222,6 +225,14 @@ export function usePipeline(
           if (!seen.has(id)) stageMemory.current.delete(id);
         }
 
+        // Ingress rate, derived from row timestamps rather than a server counter.
+        const acceptedCutoff = now - 60_000;
+        setAcceptedRecently(
+          tracked.filter(
+            (item) => new Date(item.createdAt).getTime() >= acceptedCutoff,
+          ).length,
+        );
+
         setNotifications(tracked);
         setMetrics(metricsResult);
         setQueue(queueResult);
@@ -267,6 +278,7 @@ export function usePipeline(
 
   return {
     notifications,
+    acceptedRecently,
     byStage,
     metrics,
     queue,

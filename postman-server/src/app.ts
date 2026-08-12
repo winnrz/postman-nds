@@ -7,6 +7,11 @@ export interface AppOptions extends FastifyServerOptions, Partial<AutoloadPlugin
 }
 // Pass --options via CLI arguments in command to enable these options.
 const options: AppOptions = {
+  // Railway terminates TLS at its edge and forwards, so the socket address is
+  // always the proxy. Without this, `request.ip` is identical for every caller
+  // and the per-IP write limit in `plugins/writeGuard` degrades into one shared
+  // global bucket.
+  trustProxy: true,
 }
 
 const app: FastifyPluginAsync<AppOptions> = async (

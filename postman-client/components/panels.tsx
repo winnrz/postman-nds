@@ -1,53 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { Activity, Gauge, RefreshCcw, Skull } from "lucide-react";
-import { toast } from "sonner";
+import { Activity, Gauge } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { api } from "@/lib/api";
-import type { DlqItem, Metrics } from "@/lib/types";
+import type { Metrics } from "@/lib/types";
 import type { PipelineEvent } from "@/lib/usePipeline";
 import { cn } from "@/lib/utils";
-
-export function StatTile({
-  label,
-  value,
-  hint,
-  tone = "default",
-}: {
-  label: string;
-  value: string | number;
-  hint?: string;
-  tone?: "default" | "ok" | "warn" | "danger";
-}) {
-  const toneClass = {
-    default: "text-foreground",
-    ok: "text-ok",
-    warn: "text-warn",
-    danger: "text-destructive",
-  }[tone];
-
-  return (
-    <Card size="sm" className="gap-0.5">
-      <div className="px-3 text-[10px] tracking-wide text-muted-foreground uppercase">
-        {label}
-      </div>
-      <div className={cn("px-3 font-mono text-lg leading-tight", toneClass)}>
-        {value}
-      </div>
-      {hint && (
-        <div className="px-3 font-mono text-[10px] text-muted-foreground/70">
-          {hint}
-        </div>
-      )}
-    </Card>
-  );
-}
 
 export function RateLimiterPanel({ metrics }: { metrics: Metrics | null }) {
   const buckets = Object.entries(metrics?.rateLimiter ?? {});
@@ -106,126 +67,6 @@ export function RateLimiterPanel({ metrics }: { metrics: Metrics | null }) {
   );
 }
 
-export function DlqPanel({
-  items,
-  onChanged,
-  onSelect,
-}: {
-  items: DlqItem[];
-  onChanged: () => void;
-  onSelect: (id: string) => void;
-}) {
-  const [busy, setBusy] = useState<string | null>(null);
-  const pending = items.filter((item) => !item.requeuedAt);
-
-  async function requeue(id: string) {
-    setBusy(id);
-    try {
-      await api.requeue(id);
-      toast.success("Requeued", {
-        description: "attemptCount reset, new queue row inserted",
-      });
-      onChanged();
-    } catch (error) {
-      toast.error("Requeue failed", {
-        description: error instanceof Error ? error.message : undefined,
-      });
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function requeueAll() {
-    setBusy("all");
-    try {
-      const { requeued } = await api.requeueAll();
-      toast.success(`Requeued ${requeued}`);
-      onChanged();
-    } catch (error) {
-      toast.error("Requeue-all failed", {
-        description: error instanceof Error ? error.message : undefined,
-      });
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  return (
-    <Card size="sm" className="gap-2">
-      <div className="flex items-center gap-2 px-3">
-        <Skull className="size-3.5 text-destructive" />
-        <h2 className="text-xs font-medium">Dead letter queue</h2>
-        <span className="font-mono text-[10px] text-muted-foreground">
-          {pending.length} replayable
-        </span>
-        <Button
-          size="xs"
-          variant="outline"
-          className="ml-auto"
-          disabled={pending.length === 0 || busy !== null}
-          onClick={requeueAll}
-        >
-          <RefreshCcw /> Requeue all
-        </Button>
-      </div>
-
-      <ScrollArea className="h-44">
-        <div className="space-y-1 px-3 pb-1">
-          {items.length === 0 && (
-            <p className="py-2 text-[10px] text-muted-foreground/60">
-              Nothing dead-lettered. Permanent 4xx failures and jobs that burn
-              through maxAttempts land here.
-            </p>
-          )}
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center gap-2 rounded-md bg-muted/40 px-2 py-1.5"
-            >
-              <button
-                type="button"
-                onClick={() => onSelect(item.notificationId)}
-                className="min-w-0 flex-1 text-left"
-              >
-                <div className="flex items-center gap-1.5">
-                  <span className="font-mono text-[11px]">
-                    {item.notificationId.slice(0, 8)}
-                  </span>
-                  <Badge
-                    variant="destructive"
-                    className="h-4 px-1 font-mono text-[9px]"
-                  >
-                    {item.errorCode ?? "err"}
-                  </Badge>
-                  <span className="font-mono text-[10px] text-muted-foreground">
-                    ×{item.attemptCount}
-                  </span>
-                </div>
-                <p className="truncate text-[10px] text-muted-foreground">
-                  {item.failureReason}
-                </p>
-              </button>
-              {item.requeuedAt ? (
-                <Badge variant="outline" className="text-[9px]">
-                  requeued
-                </Badge>
-              ) : (
-                <Button
-                  size="xs"
-                  variant="secondary"
-                  disabled={busy !== null}
-                  onClick={() => requeue(item.id)}
-                >
-                  Requeue
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
-    </Card>
-  );
-}
 
 const EVENT_TONE: Record<PipelineEvent["kind"], string> = {
   created: "text-primary",

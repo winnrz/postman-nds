@@ -1,5 +1,6 @@
 import { FastifyPluginAsync } from "fastify";
 
+import { withTimeout } from "../../lib/withTimeout";
 import { prisma } from "../../plugins/prisma";
 import { connectRedis, redis } from "../../plugins/redis";
 
@@ -38,29 +39,14 @@ const healthResponseJsonSchema = {
   },
 } as const;
 
-// An unreachable dependency does not fail fast: node-redis retries a dead host
-// forever, and the Postgres driver waits on its own connect timeout. Without a
-// bound here the health check hangs instead of answering, which reads to a
-// platform health probe as a timeout — and a deploy that never goes live.
+// Without a bound here the health check hangs instead of answering, which reads
+// to a platform health probe as a timeout — and a deploy that never goes live.
 const PROBE_TIMEOUT_MS = Number(process.env.HEALTH_PROBE_TIMEOUT_MS ?? 2000);
-
-function withTimeout<T>(work: Promise<T>, ms: number): Promise<T> {
-  return Promise.race([
-    work,
-    new Promise<never>((_resolve, reject) => {
-      // `unref` so a pending probe timer never keeps the process alive.
-      setTimeout(
-        () => reject(new Error(`probe timed out after ${ms}ms`)),
-        ms,
-      ).unref();
-    }),
-  ]);
-}
 
 async function probe(run: () => Promise<unknown>): Promise<DependencyState> {
   const startedAt = Date.now();
   try {
-    await withTimeout(Promise.resolve(run()), PROBE_TIMEOUT_MS);
+    await withTimeout(Promise.resolve(run()), PROBE_TIMEOUT_MS, "probe");
     return { ok: true, latencyMs: Date.now() - startedAt, error: null };
   } catch (error) {
     return {

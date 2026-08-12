@@ -95,16 +95,38 @@ postman/             Postman collections and environments
 endpoints once a second — the same way the workers and scheduler observe the
 queue — and merges them into one picture:
 
-- **Compose** — pick a template (variables are read out of `{{placeholders}}`
-  and posted as `metadata`) or send ad-hoc content, choose channel, priority and
-  a schedule offset, then send one or burst 20 through `POST /notifications/batch`
+This is a demonstration of message movement, not a product. There is no
+authoring UI: content comes from a single seeded template and the client cannot
+create one. The dashboard is four things:
+
+- **Send** — "Send one" or "Burst 25". That is the entire input surface
 - **Pipeline** — API → Postgres → scheduler → queue → workers → dispatch, with
-  every notification rendered as a chip in whichever stage currently holds it
-- **Outcomes** — delivered, waiting out retry backoff, or dead-lettered
-- **Rate limiter** — live token counts per channel
+  every notification rendered as a chip in whichever stage currently holds it,
+  including delivered, waiting out backoff, rate limited, and dead-lettered
+- **Rate limiter** — live token counts per channel, draining as a burst runs
 - **Transitions** — a diff of each poll, so state changes read as a timeline
 - **Inspector** — click any chip for its full `AttemptLog` history: provider,
   worker, duration, error code, backoff
+
+### Why the burst is 25
+
+The seeded template is **SMS**, capped at 20 dispatches per minute, and the
+token bucket starts full. Sending exactly 20 would consume the bucket without
+ever refusing anything — so a burst of 25 is what makes the limiter observable:
+20 go straight out, 5 park in `RATE_LIMITED`, and they drain on the next refill.
+
+Each send uses a fresh `recipientId`. The idempotency key is
+`recipientId|channel|templateId|bodyHash|scheduledAt`, and the body is fixed by
+the template, so a repeated recipient would collide and return the existing
+notification instead of creating a new one — a burst of 25 identical requests
+would produce exactly one row and nothing would move.
+
+### Seeding
+
+`src/seed.ts` upserts the one template against `@@unique([name, channel])`, so
+it is safe to run on every deploy. `npm run release` is
+`prisma migrate deploy && node dist/seed.js` — use that as the pre-deploy command
+rather than `migrate deploy` alone, or the dashboard has no template to send from.
 
 ### Running it
 
@@ -148,15 +170,38 @@ once with `npm run build`, then each service runs a different start command:
 | Service | Start command | Public domain | Health check |
 |---|---|---|---|
 | `api` | `npm start` | yes | `/health` |
+| pre-deploy on `api` | `npm run release` (migrate + seed) | — | — |
 | `worker` | `npm run start:worker` | no | none |
 | `scheduler` | `npm run start:scheduler` | no | none |
 
-Set `prisma migrate deploy` as the **pre-deploy command on `api` only**, so the
-three services don't race each other to migrate.
+Set `npm run release` as the **pre-deploy command on `api` only**, so the three
+services don't race each other to migrate or seed.
 
 `/health` returns 200 when Postgres answers, 503 when it doesn't, and reports
 `degraded` when Postgres is up but Redis is not — Redis only gates dispatch, and
 restarting the API would not bring it back, so it must not fail the health check.
+
+### Abuse limits
+
+The deployed API is public and unauthenticated — the dashboard is meant to be
+clicked by strangers, and "Send" is the whole demo. So writes are bounded rather
+than closed:
+
+| Guard | Behaviour |
+|---|---|
+| Per-IP write limit | 30 writes / 60s, counted in Redis, applied to every `POST`/`PUT`/`PATCH`/`DELETE`. Returns `429` with `retry-after` |
+| Admin token | `POST /templates` and `POST /dlq/requeue-all` need the `x-admin-token` header — durable shared state and a bulk operation over every dead-lettered row |
+| Retention | The scheduler purges terminal notifications older than `RETENTION_DAYS` (7), under the same advisory lock, capped per cycle so it never holds locks against the workers' queue |
+
+Two deliberate choices worth knowing. The limiter **fails open** if Redis is
+unreachable — dispatch is already halted in that state, so the exposure is a
+short window of unlimited writes rather than an outage stacked on an outage. And
+the admin gate **fails closed** in production: an unset `ADMIN_TOKEN` there is a
+misconfiguration, not permission to open the routes to everyone.
+
+Per-IP limiting only works because `trustProxy` is enabled in `app.ts` — behind
+Railway's edge every request otherwise carries the proxy's address, which would
+collapse the per-IP limit into one shared global bucket.
 
 ### Environment variables
 
@@ -166,6 +211,8 @@ restarting the API would not bring it back, so it must not fail the health check
 | `REDIS_URL` | • | • | | |
 | `PORT` | auto | | | |
 | `CORS_ORIGIN` | • | | | |
+| `ADMIN_TOKEN` | • | | | |
+| `RETENTION_DAYS` | | | • | |
 | `WORKER_ID` | | • | | |
 | `NEXT_PUBLIC_API_URL` | | | | • |
 

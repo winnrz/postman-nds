@@ -1,12 +1,17 @@
 import { connectRedis, redis } from "../plugins/redis";
 
-// Default rate limits per channel.
+// Per-channel dispatch limits. Configurable because the demo turns on them: the
+// dashboard bursts more messages than the SMS bucket holds so the overflow is
+// visibly parked in RATE_LIMITED, and tuning that is how you tune the demo.
 const RATE_LIMITS: Record<string, number> = {
-  email: 100,
-  sms: 20,
+  email: Number(process.env.RATE_LIMIT_EMAIL ?? 100),
+  sms: Number(process.env.RATE_LIMIT_SMS ?? 20),
 };
 
-const REFILL_INTERVAL_SECONDS = 60;
+// How long a drained bucket takes to come back — the wait you watch during a burst.
+const REFILL_INTERVAL_SECONDS = Number(
+  process.env.RATE_LIMIT_REFILL_SECONDS ?? 60,
+);
 
 // Lua script that atomically:
 // 1. Calculates tokens to add since last refill

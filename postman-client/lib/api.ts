@@ -94,18 +94,9 @@ export const api = {
   dlq: (pageSize = 50) =>
     request<{ items: DlqItem[]; total: number }>(`/dlq?pageSize=${pageSize}`),
 
+  // Read-only: the demo sends from one seeded template and the client never
+  // creates one. `POST /templates` is admin-gated on the server regardless.
   templates: () => request<Template[]>("/templates"),
-
-  createTemplate: (input: {
-    name: string;
-    channel: string;
-    subjectTemplate?: string;
-    bodyTemplate: string;
-  }) =>
-    request<{ id: string }>("/templates", {
-      method: "POST",
-      body: JSON.stringify(input),
-    }),
 
   // 201 = a new row; 200 = the idempotency key matched something recent.
   createNotification: async (input: CreateNotificationInput) => {
