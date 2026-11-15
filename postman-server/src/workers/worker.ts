@@ -21,36 +21,28 @@ type QueueJob = {
 // Atomically claim the next available job by setting a visibility timeout, ensuring only one worker can claim it.
 async function claimNextJob(): Promise<QueueJob | null> {
   const now = new Date();
-  // Pull the oldest visible job (null/expired timeout means available to claim).
-  const candidate = await prisma.notificationQueue.findFirst({
-    where: {
-      OR: [{ visibilityTimeout: null }, { visibilityTimeout: { lt: now } }],
-    },
-    orderBy: [{ createdAt: "asc" }],
-    select: { id: true, notificationId: true },
-  });
+  const claimedUntil = new Date(now.getTime() + VISIBILITY_TIMEOUT_MS);
 
-  if (!candidate) return null;
+  // Select + claim in one statement. FOR UPDATE row-locks the oldest visible job
+  // (null/expired timeout means available); SKIP LOCKED makes concurrent workers
+  // pass over rows another worker is mid-claim on and take the next one instead of
+  // all contending for the same row. The row lock ends with this statement — the
+  // visibility timeout is what keeps the job owned while it is processed.
+  const claimed = await prisma.$queryRaw<QueueJob[]>`
+    UPDATE "NotificationQueue"
+    SET "workerId" = ${WORKER_ID},
+        "visibilityTimeout" = ${claimedUntil}
+    WHERE id = (
+      SELECT id FROM "NotificationQueue"
+      WHERE "visibilityTimeout" IS NULL OR "visibilityTimeout" < ${now}
+      ORDER BY "createdAt" ASC
+      LIMIT 1
+      FOR UPDATE SKIP LOCKED
+    )
+    RETURNING id AS "queueId", "notificationId"
+  `;
 
-  const claimedUntil = new Date(Date.now() + VISIBILITY_TIMEOUT_MS);
-  // Atomic claim guard: only one worker can move this row into its visibility window.
-  const claim = await prisma.notificationQueue.updateMany({
-    where: {
-      id: candidate.id,
-      OR: [{ visibilityTimeout: null }, { visibilityTimeout: { lt: now } }],
-    },
-    data: {
-      workerId: WORKER_ID,
-      visibilityTimeout: claimedUntil,
-    },
-  });
-
-  if (claim.count === 0) return null;
-
-  return {
-    queueId: candidate.id,
-    notificationId: candidate.notificationId,
-  };
+  return claimed[0] ?? null;
 }
 
 function getProviderForChannel(
